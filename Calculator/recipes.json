@@ -1,0 +1,43 @@
+
+[
+  {
+    "Name": "Mystery Metal",
+    "FocusCost": 10,
+    "Yield": 1,
+    "IsMineable": false,
+    "Ingredients": {
+      "Boru Ore": 8,
+      "Burning Powder": 1
+    }
+  },
+  {
+    "Name": "Burning Powder",
+    "FocusCost": 20,
+    "Yield": 15,
+    "IsMineable": false,
+    "Ingredients": {
+      "Charcoal": 1
+    }
+  },
+  {
+    "Name": "Charcoal",
+    "FocusCost": 0,
+    "Yield": 10,
+    "IsMineable": false,
+    "Ingredients": {
+      "Logs": 28
+    }
+  },
+  {
+    "Name": "Boru Ore",
+    "FocusCost": 20,
+    "Yield": 1,
+    "IsMineable": true
+  },
+  {
+    "Name": "Logs",
+    "FocusCost": 0,
+    "Yield": 1,
+    "IsMineable": true
+  }
+]
