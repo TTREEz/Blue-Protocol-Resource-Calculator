@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Blue Protocol — Recipes & Focus Calculator</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+    <header>
+        <div class="wrap">
+            <h1>Blue Protocol — Recipes & Focus</h1>
+            <nav class="tabs" role="tablist" aria-label="Main">
+                <button class="tab active" data-tab="builder" role="tab" aria-selected="true">Builder</button>
+                <button class="tab" data-tab="calculator" role="tab" aria-selected="false">Calculator</button>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- BUILDER -->
+        <section id="builder" class="panel active" role="tabpanel" aria-labelledby="tab-builder">
+            <div class="card">
+                <div class="inner">
+                    <div class="section-title">
+                        <h2>Recipes</h2>
+                        <div class="toolbar">
+                            <button id="btnNew" class="btn small">New</button>
+                            <button id="btnDuplicate" class="btn small ghost">Duplicate</button>
+                            <button id="btnDelete" class="btn small ghost">Delete</button>
+                            <button id="btnSortAZ" class="btn small ghost">Sort A→Z</button>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="field">
+                            <label>Search</label>
+                            <input id="searchBox" type="text" placeholder="Filter by name..." />
+                        </div>
+                        <div class="field">
+                            <label>Status</label>
+                            <div class="pill" id="storeStatus">0 recipes</div>
+                        </div>
+                    </div>
+
+                    <div class="table-wrap" style="margin-top:10px;max-height:360px;overflow:auto">
+                        <table id="recipesTable">
+                            <thead>
+                                <tr>
+                                    <th style="width:32px"></th>
+                                    <th>Name</th>
+                                    <th class="num">Yield</th>
+                                    <th class="num">Yield Min/Max</th>
+                                    <th class="num">Focus</th>
+                                    <th class="num">Time s</th>
+                                    <th>Type</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top:14px">
+                <div class="inner">
+                    <div class="section-title">
+                        <h2 id="editTitle">Edit Recipe</h2>
+                        <div class="toolbar">
+                            <button id="btnSave" class="btn primary small">Save</button>
+                            <button id="btnReset" class="btn small ghost">Reset</button>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="field">
+                            <label>Name</label>
+                            <input id="rName" type="text" placeholder="e.g., Mystery Metal" />
+                        </div>
+                        <div class="field">
+                            <label>Is mineable?</label>
+                            <label class="pill"><input id="rMine" type="checkbox" /> Mineable / Gatherable</label>
+                            <small class="muted">If checked, action becomes Mine/Gather (no ingredients
+                                required).</small>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="field">
+                            <label>FocusCost (per craft)</label>
+                            <input id="rFocus" type="number" min="0" step="0.01" />
+                        </div>
+                        <div class="field">
+                            <label>TimePerCraftSeconds</label>
+                            <input id="rTime" type="number" min="0" step="1" />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="field">
+                            <label>Yield (fixed)</label>
+                            <input id="rYield" type="number" min="1" step="0.01" />
+                        </div>
+                        <div class="field">
+                            <label>YieldMin / YieldMax (optional)</label>
+                            <div class="row" style="grid-template-columns:1fr 1fr;gap:8px">
+                                <input id="rYmin" type="number" min="0" step="0.01" placeholder="Min" />
+                                <input id="rYmax" type="number" min="0" step="0.01" placeholder="Max" />
+                            </div>
+                            <small class="muted">If present, calculator uses Min/Average/Max depending on mode.</small>
+                        </div>
+                    </div>
+
+                    <!-- Min/Max CHANCE (optional) -->
+                    <div class="form-row">
+                        <label style="min-width: 160px;">Min / Max Chance (optional)</label>
+                        <div class="row">
+                            <input id="rYminP" type="number" min="0" max="100" step="0.01" placeholder="Min % (e.g. 70)"
+                                style="width: 160px;" />
+                            <span style="padding:0 6px;">/</span>
+                            <input id="rYmaxP" type="number" min="0" max="100" step="0.01" placeholder="Max % (e.g. 30)"
+                                style="width: 160px;" />
+                            <small style="opacity:.7;margin-left:8px;">Leave blank if unknown</small>
+                        </div>
+                    </div>
+                    <section id="toolsBox" class="card"
+                        style="margin-top:16px;padding:12px 14px;border:1px solid #ddd;border-radius:12px;">
+                        <h3 style="margin:0 0 8px 0;">Tools</h3>
+                        <div class="tool avg-tool">
+                            <label for="sampleYields" style="display:block;margin:6px 0 4px;">Observed Yields (paste
+                                numbers separated by commas, spaces, or new lines)</label>
+                            <textarea id="sampleYields" rows="3" placeholder="e.g. 10, 12, 11, 12"
+                                style="width:100%;"></textarea>
+
+                            <div style="display:flex;gap:16px;flex-wrap:wrap;margin:8px 0 6px;">
+                                <div>Count: <b id="statCount">0</b></div>
+                                <div>Average: <b id="statMean">—</b></div>
+                                <div>Min: <b id="statMin">—</b></div>
+                                <div>Max: <b id="statMax">—</b></div>
+                                <div>Std Dev: <b id="statStd">—</b></div>
+                            </div>
+
+                            <div style="display:flex;gap:8px;flex-wrap:wrap;margin:6px 0;">
+                                <button id="btnApplyAvgFixed" class="btn" disabled>Apply Average → Fixed Yield</button>
+                                <button id="btnApplyRange" class="btn" disabled>Set Min/Max from Samples</button>
+                                <button id="btnClearSamples" class="btn secondary">Clear</button>
+                            </div>
+                            <div id="toolsMsg" style="min-height:1em;font-size:.9em;opacity:.8;"></div>
+                        </div>
+                    </section>
+
+                    <hr />
+                    <h3 style="margin:6px 0 10px">Ingredients</h3>
+                    <div class="table-wrap">
+                        <table id="ingTable">
+                            <thead>
+                                <tr>
+                                    <th>Material</th>
+                                    <th class="num" style="width:140px">Units / craft</th>
+                                    <th style="width:60px"></th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div class="grid-actions" style="margin-top:10px">
+                        <button id="btnAddIng" class="btn small">Add ingredient</button>
+                        <button id="btnAutofillIng" class="btn small ghost">Autofill datalist</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top:14px">
+                <div class="inner">
+                    <div class="section-title">
+                        <h2>Import / Export</h2>
+                        <div class="toolbar">
+                            <button id="btnLoadSample" class="btn small">Load sample</button>
+                            <button id="btnExportJson" class="btn small">Download JSON</button>
+                            <button id="btnCopyJson" class="btn small ghost">Copy JSON</button>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="field">
+                            <label>Upload file</label>
+                            <input id="fileRecipes" type="file" accept=".json,application/json" />
+                        </div>
+                        <div class="field">
+                            <label>Status</label>
+                            <div class="pill" id="importStatus">—</div>
+                        </div>
+                    </div>
+
+                    <div class="field" style="margin-top:8px">
+                        <label>Paste JSON</label>
+                        <textarea id="jsonText" placeholder='[ { "Name": "Item", "FocusCost": 10, ... } ]'></textarea>
+                    </div>
+                    <div class="grid-actions" style="margin-top:10px">
+                        <button id="btnLoadText" class="btn">Load from text</button>
+                        <button id="btnClearStore" class="btn ghost">Clear all</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CALCULATOR -->
+        <section id="calculator" class="panel" role="tabpanel" aria-labelledby="tab-calculator">
+            <div class="card">
+                <div class="inner">
+                    <div class="section-title">
+                        <h2>Target & Mode</h2>
+                        <div class="toolbar">
+                            <button id="btnRefreshMaterials" class="btn small ghost">Refresh materials</button>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="field">
+                            <label>Target material</label>
+                            <select id="targetSelect"></select>
+                        </div>
+                        <div class="field">
+                            <label>Yield mode</label>
+                            <div class="grid-actions">
+                                <label class="pill"><input type="radio" name="yieldMode" value="safe" checked /> Safe
+                                    (min)</label>
+                                <label class="pill"><input type="radio" name="yieldMode" value="average" />
+                                    Average</label>
+                                <label class="pill"><input type="radio" name="yieldMode" value="optimistic" />
+                                    Optimistic (max)</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div class="row">
+                        <div class="field">
+                            <label>Calculation mode</label>
+                            <div class="grid-actions">
+                                <label class="pill"><input type="radio" name="calcMode" value="qty" checked /> Desired
+                                    quantity</label>
+                                <label class="pill"><input type="radio" name="calcMode" value="all" /> Use all my
+                                    Focus</label>
+                            </div>
+                        </div>
+                        <div class="field"></div>
+                    </div>
+
+                    <div id="qtyWrap" class="row">
+                        <div class="field">
+                            <label>Desired quantity</label>
+                            <input id="desiredQty" type="number" step="1" min="0" placeholder="e.g., 10" />
+                        </div>
+                        <div class="field">
+                            <label>Available Focus (for affordability check)</label>
+                            <input id="availableFocusQty" type="number" step="0.01" min="0" placeholder="e.g., 1200" />
+                        </div>
+                    </div>
+
+                    <div id="allWrap" class="row" style="display:none">
+                        <div class="field">
+                            <label>Available Focus (use all)</label>
+                            <input id="availableFocusAll" type="number" step="0.01" min="0" placeholder="e.g., 1200" />
+                        </div>
+                        <div class="field">
+                            <label class="muted">Result</label>
+                            <span class="pill" id="maxCraftablePreview">—</span>
+                        </div>
+                    </div>
+
+                    <div class="grid-actions" style="margin-top:10px">
+                        <button id="btnCalc" class="btn primary">Calculate</button>
+                        <button id="btnExportCsv" class="btn">Export CSV</button>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="right-col">
+                <div class="card">
+                    <div class="inner">
+                        <div class="section-title">
+                            <h2>Summary</h2>
+                            <div class="toolbar"><span class="badge" id="summaryBadge">—</span></div>
+                        </div>
+                        <div id="errors" class="err" style="display:none"></div>
+                        <div id="summary" class="tally" style="display:none">
+                            <div class="chips" id="focusChips"></div>
+                            <div class="chips" id="timeChips"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top:14px">
+                    <div class="inner">
+                        <div class="section-title">
+                            <h2>Breakdown (tree)</h2>
+                            <div class="toolbar">
+                                <label class="pill"><input type="checkbox" id="showTimes"> Show times</label>
+                            </div>
+                        </div>
+                        <pre id="treeOut">{}</pre>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top:14px">
+                    <div class="inner">
+                        <div class="section-title">
+                            <h2>Base Resources Checklist</h2>
+                        </div>
+                        <div class="table-wrap">
+                            <table id="leafTable">
+                                <thead>
+                                    <tr>
+                                        <th>Action</th>
+                                        <th>Material</th>
+                                        <th>Crafts</th>
+                                        <th>Yield</th>
+                                        <th>Units needed</th>
+                                        <th>Focus</th>
+                                        <th>Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
