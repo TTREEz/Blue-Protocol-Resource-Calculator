@@ -21,7 +21,7 @@ const formatDuration = (seconds) => {
   const m = Math.floor((seconds % 3600) / 60);
   const s = seconds % 60;
   return h >= 1 ? `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
-               : `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    : `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 };
 const csvEsc = s => {
   s = String(s ?? '');
@@ -38,10 +38,10 @@ const SAMPLE = [
     "YieldMax": null,
     "TimePerCraftSeconds": 5,
     "IsMineable": false,
-    "Ingredients": { "Charcoal": 1 },
+    "Ingredients": {
+      "Charcoal": 1
+    },
     "YieldOutcomes": null,
-    "YieldMinChance": null,
-    "YieldMaxChance": null
   },
   {
     "Name": "Charcoal",
@@ -51,23 +51,21 @@ const SAMPLE = [
     "YieldMax": null,
     "TimePerCraftSeconds": 5,
     "IsMineable": false,
-    "Ingredients": { "Logs": 28 },
+    "Ingredients": {
+      "Logs": 28
+    },
     "YieldOutcomes": null,
-    "YieldMinChance": null,
-    "YieldMaxChance": null
   },
   {
     "Name": "Boru Ore",
     "FocusCost": 20,
-    "Yield": 12,
-    "YieldMin": 11,
+    "Yield": null,
+    "YieldMin": 10,
     "YieldMax": 12,
-    "TimePerCraftSeconds": 0,
+    "TimePerCraftSeconds": 5,
     "IsMineable": true,
     "Ingredients": {},
     "YieldOutcomes": null,
-    "YieldMinChance": null,
-    "YieldMaxChance": null
   },
   {
     "Name": "Logs",
@@ -79,21 +77,17 @@ const SAMPLE = [
     "IsMineable": true,
     "Ingredients": {},
     "YieldOutcomes": null,
-    "YieldMinChance": null,
-    "YieldMaxChance": null
   },
   {
     "Name": "Rich Boru Ore",
     "FocusCost": 20,
-    "Yield": 11.4,
+    "Yield": null,
     "YieldMin": 10,
     "YieldMax": 12,
     "TimePerCraftSeconds": 5,
     "IsMineable": true,
     "Ingredients": {},
     "YieldOutcomes": null,
-    "YieldMinChance": null,
-    "YieldMaxChance": null
   },
   {
     "Name": "Mystery Metal - Novice",
@@ -103,23 +97,29 @@ const SAMPLE = [
     "YieldMax": 2,
     "TimePerCraftSeconds": 5,
     "IsMineable": false,
-    "Ingredients": { "Boru Ore": 8, "Burning Powder": 1 },
+    "Ingredients": {
+      "Boru Ore": 8,
+      "Burning Powder": 1
+    },
     "YieldOutcomes": null,
-    "YieldMinChance": 0.8,
-    "YieldMaxChance": 0.2
   },
   {
     "Name": "Mystery Metal - Master",
     "FocusCost": 10,
     "Yield": null,
-    "YieldMin": 1,
-    "YieldMax": 3,
+    "YieldMin": null,
+    "YieldMax": null,
     "TimePerCraftSeconds": 5,
     "IsMineable": false,
-    "Ingredients": { "Rich Boru Ore": 8, "Burning Powder": 1 },
-    "YieldOutcomes": { "1": 70, "2": 20, "3": 10 },
-    "YieldMinChance": null,
-    "YieldMaxChance": null
+    "Ingredients": {
+      "Rich Boru Ore": 8,
+      "Burning Powder": 1
+    },
+    "YieldOutcomes": {
+      "1": 0.70,
+      "2": 0.20,
+      "3": 0.10
+    },
   }
 ];
 
@@ -130,7 +130,7 @@ const Store = (() => {
   let arrayFormat = true;
 
   function onChange() { listeners.forEach(fn => fn()); }
-  function subscribe(fn){ listeners.add(fn); return ()=>listeners.delete(fn); }
+  function subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); }
 
   const toProb = v => {
     if (v === null || v === undefined || v === '') return null;
@@ -144,33 +144,37 @@ const Store = (() => {
   function normalizeOutcomes(obj) {
     if (!obj || typeof obj !== 'object') return null;
     const pairs = Object.entries(obj)
-      .map(([k,v]) => [Number(k), Number(v)])
-      .filter(([q,p]) => Number.isFinite(q) && q >= 0 && Number.isFinite(p) && p >= 0);
+      .map(([k, v]) => [Number(k), Number(v)])
+      .filter(([q, p]) => Number.isFinite(q) && q >= 0 && Number.isFinite(p) && p >= 0);
     if (!pairs.length) return null;
 
     // Convert >1 to percent; then normalize to sum 1
-    const converted = pairs.map(([q,p]) => [q, p > 1 ? (p / 100) : p]);
-    const sum = converted.reduce((s,[,p]) => s + p, 0);
+    const converted = pairs.map(([q, p]) => [q, p > 1 ? (p / 100) : p]);
+    const sum = converted.reduce((s, [, p]) => s + p, 0);
     if (sum <= 0) return null;
 
     const norm = {};
-    for (const [q,p] of converted) norm[q] = p / sum;
+    for (const [q, p] of converted) norm[q] = p / sum;
     return norm;
   }
 
   function normalizeRecipe(r) {
+
     // Fixed yield: allow null, but keep fixed yields > 0 if provided
     let fixedYield = r.Yield;
     const hasFixed = fixedYield !== '' && fixedYield !== null && fixedYield !== undefined;
     fixedYield = hasFixed ? Number(fixedYield) : null;
+    const toNonNegOrNull = v =>
+      (v === '' || v == null) ? null
+        : (Number.isFinite(Number(v)) && Number(v) >= 0 ? Number(v) : null);
 
     const nr = {
       Name: String(r.Name || '').trim(),
       FocusCost: nz(r.FocusCost),
       Yield: hasFixed ? (Number.isFinite(fixedYield) && fixedYield > 0 ? fixedYield : 1) : null,
       // Min/Max: allow 0 as valid
-      YieldMin: (Number.isFinite(Number(r.YieldMin)) && Number(r.YieldMin) >= 0) ? Number(r.YieldMin) : null,
-      YieldMax: (Number.isFinite(Number(r.YieldMax)) && Number(r.YieldMax) >= 0) ? Number(r.YieldMax) : null,
+      YieldMin: toNonNegOrNull(r.YieldMin),
+      YieldMax: toNonNegOrNull(r.YieldMax),
       TimePerCraftSeconds: nz(r.TimePerCraftSeconds, 0),
       IsMineable: !!r.IsMineable,
       Ingredients: {},
@@ -185,7 +189,7 @@ const Store = (() => {
     if (nr.YieldMax !== null && nr.YieldMin === null) nr.YieldMin = nr.YieldMax;
 
     if (r.Ingredients && typeof r.Ingredients === 'object') {
-      for (const [k,v] of Object.entries(r.Ingredients)) {
+      for (const [k, v] of Object.entries(r.Ingredients)) {
         const qty = Number(v);
         if (k && Number.isFinite(qty) && qty > 0) nr.Ingredients[k] = qty;
       }
@@ -215,11 +219,11 @@ const Store = (() => {
   }
 
   function exportJson(pretty = true) {
-    const obj = arrayFormat ? Object.values(map) : Object.fromEntries(Object.entries(map).map(([k,v]) => [k,v]));
+    const obj = arrayFormat ? Object.values(map) : Object.fromEntries(Object.entries(map).map(([k, v]) => [k, v]));
     return JSON.stringify(obj, null, pretty ? 2 : 0);
   }
 
-  function allNames() { return Object.keys(map).sort((a,b) => a.localeCompare(b)); }
+  function allNames() { return Object.keys(map).sort((a, b) => a.localeCompare(b)); }
   function get(name) { return name ? map[name] : null; }
   function upsert(recipe, oldName = null) {
     const r = normalizeRecipe(recipe);
@@ -229,9 +233,9 @@ const Store = (() => {
     onChange();
     return r.Name;
   }
-  function remove(name){ if (map[name]) { delete map[name]; onChange(); } }
-  function clear(){ map = {}; onChange(); }
-  function count(){ return Object.keys(map).length; }
+  function remove(name) { if (map[name]) { delete map[name]; onChange(); } }
+  function clear() { map = {}; onChange(); }
+  function count() { return Object.keys(map).length; }
 
   // Init with sample for convenience
   load(SAMPLE);
@@ -299,10 +303,10 @@ const Store = (() => {
   // Tools panel
   const sampleYields = $('#sampleYields');
   const statCount = $('#statCount');
-  const statMean  = $('#statMean');
-  const statMin   = $('#statMin');
-  const statMax   = $('#statMax');
-  const statStd   = $('#statStd');
+  const statMean = $('#statMean');
+  const statMin = $('#statMin');
+  const statMax = $('#statMax');
+  const statStd = $('#statStd');
 
   const btnApplyAvgFixed = $('#btnApplyAvgFixed');
   const btnApplyRange = $('#btnApplyRange');
@@ -318,6 +322,46 @@ const Store = (() => {
   let selected = null; // selected recipe name
   let formDirty = false;
 
+  function setYieldTypeAndClear(type) {
+    if (!yieldTypeEl) return;
+    yieldTypeEl.value = type;
+    // Clear incompatible fields so they save as nulls
+    if (type === 'fixed') {
+      rYmin.value = ''; rYmax.value = '';
+      outTableBody.innerHTML = ''; addOutcomeRow(); // keep one empty row
+    } else if (type === 'range') {
+      rYield.value = '';
+      outTableBody.innerHTML = ''; addOutcomeRow();
+    } else if (type === 'multi') {
+      rYield.value = ''; rYmin.value = ''; rYmax.value = '';
+    }
+    applyYieldTypeUI(type);
+    updateRangeAvgHint();
+    formDirty = true;
+  }
+
+  // If user edits Fixed yield, switch to Fixed & clear others
+  ['input', 'change'].forEach(ev => {
+    rYield.addEventListener(ev, () => {
+      if (rYield.value !== '') setYieldTypeAndClear('fixed');
+    });
+  });
+
+  // If user edits Min/Max, switch to Range & clear others
+  ['input', 'change'].forEach(ev => {
+    rYmin.addEventListener(ev, () => setYieldTypeAndClear('range'));
+    rYmax.addEventListener(ev, () => setYieldTypeAndClear('range'));
+  });
+
+  // If user edits Outcomes grid, switch to Multi & clear others
+  outTableBody.addEventListener('input', () => setYieldTypeAndClear('multi'));
+  btnAddOutcome?.addEventListener('click', e => { e.preventDefault(); setYieldTypeAndClear('multi'); });
+  btnClearOutcomes?.addEventListener('click', e => { e.preventDefault(); setYieldTypeAndClear('multi'); });
+
+  // If user manually changes the Yield Type select, also clear incompatible fields
+  yieldTypeEl?.addEventListener('change', () => setYieldTypeAndClear(yieldTypeEl.value));
+
+
   function renderList() {
     const filter = (searchBox.value || '').toLowerCase().trim();
     const names = Store.allNames().filter(n => !filter || n.toLowerCase().includes(filter));
@@ -327,21 +371,36 @@ const Store = (() => {
       const tr = document.createElement('tr');
       if (name === selected) tr.classList.add('selected');
       const tag = r.IsMineable ? 'mine' : (Object.keys(r.Ingredients).length ? 'craft' : 'solo');
+
       const yieldFixedCell = (r.Yield == null) ? '—' : fmt2(r.Yield);
+      const yieldRangeCell = (r.YieldMin == null && r.YieldMax == null)
+        ? '—'
+        : `${r.YieldMin ?? '—'} / ${r.YieldMax ?? '—'}`;
+
+      let outCell = '—';
+      if (r.YieldOutcomes && Object.keys(r.YieldOutcomes).length) {
+        const pairs = Object.entries(r.YieldOutcomes)
+          .map(([q, p]) => `${q}×${Math.round(((p <= 1 ? p * 100 : p)) * 100) / 100}%`);
+        // keep it readable; join all (table scrolls if long)
+        outCell = pairs.join(', ');
+      }
+
       tr.innerHTML = `
-        <td>•</td>
-        <td>${name}</td>
-        <td class="num">${yieldFixedCell}</td>
-        <td class="num">${r.YieldMin ?? ''} / ${r.YieldMax ?? ''}</td>
-        <td class="num">${fmt2(r.FocusCost)}</td>
-        <td class="num">${Math.round(r.TimePerCraftSeconds || 0)}</td>
-        <td>${tag}</td>
-      `;
+      <td>•</td>
+      <td>${name}</td>
+      <td class="num">${yieldFixedCell}</td>
+      <td class="num">${yieldRangeCell}</td>
+      <td>${outCell}</td>
+      <td class="num">${fmt2(r.FocusCost)}</td>
+      <td class="num">${Math.round(r.TimePerCraftSeconds || 0)}</td>
+      <td>${tag}</td>
+    `;
       tr.addEventListener('click', () => { select(name); });
       tblBody.appendChild(tr);
     }
     storeStatus.textContent = `${Store.count()} recipes`;
   }
+
 
   function select(name) {
     selected = name;
@@ -382,13 +441,13 @@ const Store = (() => {
       <td class="num"><input class="out-prob" type="number" min="0" step="0.01" value="${prob}"/></td>
       <td><button class="btn small ghost removeOut">✕</button></td>`;
     tr.querySelector('.removeOut').addEventListener('click', () => { tr.remove(); formDirty = true; });
-    ['input','change'].forEach(ev => tr.addEventListener(ev, () => formDirty = true));
+    ['input', 'change'].forEach(ev => tr.addEventListener(ev, () => formDirty = true));
     outTableBody.appendChild(tr);
   }
   function renderOutcomes(obj) {
     outTableBody.innerHTML = '';
     if (obj && typeof obj === 'object' && Object.keys(obj).length) {
-      for (const [q,p] of Object.entries(obj)) {
+      for (const [q, p] of Object.entries(obj)) {
         const display = (Number(p) <= 1 ? Number(p) * 100 : Number(p)); // show as %
         addOutcomeRow(q, Math.round(display * 100) / 100);
       }
@@ -400,7 +459,7 @@ const Store = (() => {
   // ----- Ingredient helpers
   function renderIngredients(ings) {
     ingTableBody.innerHTML = '';
-    for (const [n,q] of Object.entries(ings)) addIngRow(n, q);
+    for (const [n, q] of Object.entries(ings)) addIngRow(n, q);
     if (Object.keys(ings).length === 0) addIngRow('', 0);
   }
   function addIngRow(name = '', qty = 0) {
@@ -414,7 +473,7 @@ const Store = (() => {
       <td><button class="btn small ghost remove">✕</button></td>
     `;
     tr.querySelector('.remove').addEventListener('click', () => { tr.remove(); formDirty = true; });
-    ['input','change'].forEach(ev => tr.addEventListener(ev, () => formDirty = true));
+    ['input', 'change'].forEach(ev => tr.addEventListener(ev, () => formDirty = true));
     ingTableBody.appendChild(tr);
   }
   // Helper: return the input elements for every ingredient row
@@ -447,9 +506,9 @@ const Store = (() => {
     const max = (rYmax.value === '' ? null : Number(rYmax.value));
     if (min == null && max == null) { rangeAvgHint.textContent = 'Average used in “Average” mode: —'; return; }
     const m = (min == null ? max : (max == null ? min : (min + max) / 2));
-    rangeAvgHint.textContent = `Average used in “Average” mode: ${Number.isFinite(m) ? Math.round(m*100)/100 : '—'}`;
+    rangeAvgHint.textContent = `Average used in “Average” mode: ${Number.isFinite(m) ? Math.round(m * 100) / 100 : '—'}`;
   }
-  ['input','change'].forEach(ev => {
+  ['input', 'change'].forEach(ev => {
     rYmin?.addEventListener(ev, updateRangeAvgHint);
     rYmax?.addEventListener(ev, updateRangeAvgHint);
   });
@@ -462,14 +521,14 @@ const Store = (() => {
     rName.value = r?.Name || '';
     rMine.checked = !!r?.IsMineable;
     rFocus.value = r?.FocusCost ?? 0;
-    rTime.value  = r?.TimePerCraftSeconds ?? 0;
+    rTime.value = r?.TimePerCraftSeconds ?? 0;
 
     // Fixed yield can be null -> blank
     rYield.value = (r?.Yield == null) ? '' : r.Yield;
 
     // Min/Max allow 0 and null -> blank
-    rYmin.value  = (r?.YieldMin == null) ? '' : r.YieldMin;
-    rYmax.value  = (r?.YieldMax == null) ? '' : r.YieldMax;
+    rYmin.value = (r?.YieldMin == null) ? '' : r.YieldMin;
+    rYmax.value = (r?.YieldMax == null) ? '' : r.YieldMax;
 
     // Optional: legacy Min/Max chance fields (only assign if they exist in the DOM)
     const toPct = v => (v == null ? '' : (Number(v) <= 1 ? (Number(v) * 100) : Number(v)));
@@ -496,7 +555,7 @@ const Store = (() => {
     // Collect Outcomes first (we'll attach after rec is created)
     const outPairs = outcomeRows()
       .map(r => [Number(r.qty.value), Number(r.prob.value)])
-      .filter(([q,p]) => Number.isFinite(q) && q >= 0 && Number.isFinite(p) && p >= 0);
+      .filter(([q, p]) => Number.isFinite(q) && q >= 0 && Number.isFinite(p) && p >= 0);
 
     const cleanPct = (el) => {
       const s = String(el?.value ?? '').trim();
@@ -544,7 +603,7 @@ const Store = (() => {
     // gather ingredients
     for (const row of ingredientRows()) {
       const name = row.name.value.trim();
-      const qty  = Number(row.qty.value);
+      const qty = Number(row.qty.value);
       if (name && Number.isFinite(qty) && qty > 0) rec.Ingredients[name] = qty;
     }
     return rec;
@@ -582,34 +641,34 @@ const Store = (() => {
 
     if (n === 0) {
       statCount.textContent = '0';
-      statMean.textContent  = '—';
-      statMin.textContent   = '—';
-      statMax.textContent   = '—';
-      statStd.textContent   = '—';
+      statMean.textContent = '—';
+      statMin.textContent = '—';
+      statMax.textContent = '—';
+      statStd.textContent = '—';
       btnApplyAvgFixed.disabled = true;
-      btnApplyRange.disabled    = true;
+      btnApplyRange.disabled = true;
       if (btnSamplesToOutcomes) btnSamplesToOutcomes.disabled = true;
       return;
     }
 
-    const sum = nums.reduce((s,v)=>s+v,0);
+    const sum = nums.reduce((s, v) => s + v, 0);
     const mean = sum / n;
     const minV = Math.min(...nums);
     const maxV = Math.max(...nums);
-    const variance = nums.reduce((s,v)=>s + Math.pow(v - mean, 2), 0) / n; // pop std dev
+    const variance = nums.reduce((s, v) => s + Math.pow(v - mean, 2), 0) / n; // pop std dev
     const std = Math.sqrt(variance);
     const fmt = x => (Math.round(x * 100) / 100).toString();
 
     statCount.textContent = String(n);
-    statMean.textContent  = fmt(mean);
-    statMin.textContent   = fmt(minV);
-    statMax.textContent   = fmt(maxV);
-    statStd.textContent   = fmt(std);
+    statMean.textContent = fmt(mean);
+    statMin.textContent = fmt(minV);
+    statMax.textContent = fmt(maxV);
+    statStd.textContent = fmt(std);
 
     // Gate buttons by Yield Type
     const type = yieldTypeEl ? yieldTypeEl.value : 'fixed';
-    btnApplyAvgFixed.disabled   = !(mean > 0 && type === 'fixed');
-    btnApplyRange.disabled      = !(type === 'range');
+    btnApplyAvgFixed.disabled = !(mean > 0 && type === 'fixed');
+    btnApplyRange.disabled = !(type === 'range');
     if (btnSamplesToOutcomes) btnSamplesToOutcomes.disabled = !(type === 'multi');
   }
   sampleYields?.addEventListener('input', recomputeSamplesUI);
@@ -624,7 +683,7 @@ const Store = (() => {
     if (yieldTypeEl?.value !== 'fixed') return;
     const nums = parseSamples(sampleYields.value);
     if (!nums.length) return;
-    const mean = nums.reduce((s,v)=>s+v,0) / nums.length;
+    const mean = nums.reduce((s, v) => s + v, 0) / nums.length;
     if (mean <= 0) { toolsMsg.textContent = 'Average is 0 — cannot set Fixed Yield to 0. Use Min/Max or Outcomes.'; return; }
     rYield.value = (Math.round(mean * 100) / 100);
     toolsMsg.textContent = 'Applied average to Fixed Yield.';
@@ -651,7 +710,7 @@ const Store = (() => {
     const total = nums.length;
 
     outTableBody.innerHTML = '';
-    for (const [q, count] of Object.entries(freq).sort((a,b) => Number(a[0]) - Number(b[0]))) {
+    for (const [q, count] of Object.entries(freq).sort((a, b) => Number(a[0]) - Number(b[0]))) {
       const pct = (count / total) * 100;
       addOutcomeRow(q, Math.round(pct * 100) / 100);
     }
@@ -707,7 +766,6 @@ const Store = (() => {
 (() => {
   const targetSelect = $('#targetSelect');
   const btnRefreshMaterials = $('#btnRefreshMaterials');
-  const yieldModeRadios = $$('input[name="yieldMode"]');
   const calcModeRadios = $$('input[name="calcMode"]');
   const qtyWrap = $('#qtyWrap');
   const allWrap = $('#allWrap');
@@ -715,7 +773,7 @@ const Store = (() => {
   const availableFocusQty = $('#availableFocusQty');
   const availableFocusAll = $('#availableFocusAll');
   const maxCraftablePreview = $('#maxCraftablePreview');
-
+  const distWrap = $('#distWrap');
   const btnCalc = $('#btnCalc');
   const btnExportCsv = $('#btnExportCsv');
 
@@ -744,34 +802,109 @@ const Store = (() => {
   }
   Store.subscribe(updateMaterials);
 
-  const YieldMode = { Safe:'safe', Avg:'average', Opt:'optimistic' };
+  // ----- Distributions (for probabilistic yields) -----
+  function expectedFromOutcomes(out) {
+    let sum = 0, tot = 0;
+    for (const [q, p] of Object.entries(out || {})) {
+      const qty = Number(q), prob = Number(p);
+      if (Number.isFinite(qty) && Number.isFinite(prob)) { sum += qty * prob; tot += prob; }
+    }
+    return tot > 0 ? sum / tot : 0;
+  }
+
+  function drawDistribution(canvas, outcomes) {
+    const ctx = canvas.getContext('2d');
+    const pairs = Object.entries(outcomes || {})
+      .map(([q, p]) => [Number(q), Number(p)])
+      .filter(([q, p]) => Number.isFinite(q) && Number.isFinite(p))
+      .sort((a, b) => a[0] - b[0]);
+
+    const W = canvas.width = 320, H = canvas.height = 90;
+    ctx.clearRect(0, 0, W, H);
+
+    if (!pairs.length) return;
+    const maxP = Math.max(...pairs.map(([, p]) => p));
+    const x0 = 30, y0 = H - 12, w = W - x0 - 10, h = H - 24;
+    const step = w / pairs.length, barW = Math.max(4, Math.min(28, step - 6));
+
+    // x-axis
+    ctx.strokeStyle = '#2a2f55'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x0 + 0.5, y0 + 0.5); ctx.lineTo(x0 + w + 0.5, y0 + 0.5); ctx.stroke();
+
+    pairs.forEach(([q, p], i) => {
+      const x = x0 + i * step + (step - barW) / 2;
+      const barH = Math.max(1, Math.round(h * (p / (maxP || 1))));
+      ctx.fillStyle = '#7c9cff';
+      ctx.fillRect(x, y0 - barH, barW, barH);
+      ctx.fillStyle = '#8b90aa'; ctx.font = '10px system-ui'; ctx.textAlign = 'center';
+      ctx.fillText(String(q), x + barW / 2, y0 + 10);
+    });
+  }
+
+  function renderDistributions(lines) {
+    if (!distWrap) return;
+    // Collect unique nodes that have probabilistic outcomes in this plan
+    const nodes = new Map();
+    for (const ln of (lines || [])) {
+      const rec = Store.get(ln.Material);
+      if (rec?.YieldOutcomes && Object.keys(rec.YieldOutcomes).length) {
+        nodes.set(rec.Name, rec.YieldOutcomes); // already normalized in Store
+      }
+    }
+    distWrap.innerHTML = '';
+    if (!nodes.size) {
+      distWrap.innerHTML = '<div class="muted">No probabilistic yields in this plan.</div>';
+      return;
+    }
+    for (const [name, outcomes] of nodes) {
+      const row = document.createElement('div');
+      row.style.display = 'flex';
+      row.style.alignItems = 'center';
+      row.style.gap = '12px';
+      row.style.marginBottom = '10px';
+
+      const meta = document.createElement('div');
+      meta.style.minWidth = '160px';
+      meta.innerHTML = `<div style="font-weight:600">${name}</div><small class="muted">EV ${fmt2(expectedFromOutcomes(outcomes))}</small>`;
+
+      const canvas = document.createElement('canvas');
+      drawDistribution(canvas, outcomes);
+
+      row.appendChild(meta);
+      row.appendChild(canvas);
+      distWrap.appendChild(row);
+    }
+  }
+
+  // ----- Core calc -----
+  const YieldMode = { Safe: 'safe', Avg: 'average', Opt: 'optimistic' };
 
   function effectiveYield(rec, mode) {
-    // 1) Explicit outcomes override everything
+    // 1) Outcomes override
     if (rec.YieldOutcomes && typeof rec.YieldOutcomes === 'object') {
       const pairs = Object.entries(rec.YieldOutcomes)
-        .map(([k,v]) => [Number(k), Number(v)])
-        .filter(([qty,p]) => Number.isFinite(qty) && qty >= 0 && Number.isFinite(p) && p >= 0);
+        .map(([k, v]) => [Number(k), Number(v)])
+        .filter(([qty, p]) => Number.isFinite(qty) && qty >= 0 && Number.isFinite(p) && p >= 0);
 
       if (pairs.length) {
-        const min  = Math.min(...pairs.map(([q]) => q));
-        const max  = Math.max(...pairs.map(([q]) => q));
-        const sumP = pairs.reduce((s,[,p]) => s + p, 0) || 1;
-        const avg  = pairs.reduce((s,[q,p]) => s + q * (p / sumP), 0);
+        const min = Math.min(...pairs.map(([q]) => q));
+        const max = Math.max(...pairs.map(([q]) => q));
+        const sumP = pairs.reduce((s, [, p]) => s + p, 0) || 1;
+        const avg = pairs.reduce((s, [q, p]) => s + q * (p / sumP), 0);
         if (mode === YieldMode.Safe) return Math.max(0, min);
-        if (mode === YieldMode.Opt)  return Math.max(0, max);
+        if (mode === YieldMode.Opt) return Math.max(0, max);
         return Math.max(0, avg);
       }
     }
 
-    // 2) Min/Max window (>= 0) with optional probabilities (deprecated in UI, still supported)
+    // 2) Min/Max window (with optional chances)
     const hasMin = rec.YieldMin != null && rec.YieldMin >= 0;
     const hasMax = rec.YieldMax != null && rec.YieldMax >= 0;
     if (hasMin || hasMax) {
       const min = hasMin ? rec.YieldMin : (rec.Yield ?? 1);
       const max = hasMax ? rec.YieldMax : (rec.Yield ?? 1);
       if (mode === YieldMode.Safe) return Math.max(0, min);
-      if (mode === YieldMode.Opt)  return Math.max(0, max);
+      if (mode === YieldMode.Opt) return Math.max(0, max);
 
       let pMin = rec.YieldMinChance, pMax = rec.YieldMaxChance;
       if (pMin == null && pMax == null) return Math.max(0, (min + max) / 2);
@@ -783,7 +916,7 @@ const Store = (() => {
       return Math.max(0, min * pMin + max * pMax);
     }
 
-    // 3) Fixed yield (fallback)
+    // 3) Fixed yield
     const y = (rec.Yield == null) ? 1 : Number(rec.Yield);
     return Math.max(0, Number.isFinite(y) ? y : 1);
   }
@@ -806,10 +939,10 @@ const Store = (() => {
       }
       const crafts = Math.ceil(reqUnits / Math.max(y, 0.0000001)); // guard tiny floats
       const nodeFocus = crafts * (rec.FocusCost || 0);
-      const nodeTime  = crafts * Math.max(0, rec.TimePerCraftSeconds || 0);
+      const nodeTime = crafts * Math.max(0, rec.TimePerCraftSeconds || 0);
 
       const action = rec.IsMineable
-        ? ((rec.FocusCost||0) > 0 ? 'Mine' : 'Gather')
+        ? ((rec.FocusCost || 0) > 0 ? 'Mine' : 'Gather')
         : 'Craft';
 
       lines.push({
@@ -857,6 +990,7 @@ const Store = (() => {
     return lo;
   }
 
+  // ----- Rendering -----
   function renderTree(lines, showT) {
     const out = [];
     for (const ln of lines) {
@@ -890,7 +1024,7 @@ const Store = (() => {
       const action = v.rec?.IsMineable ? ((v.rec?.FocusCost || 0) > 0 ? 'Mine' : 'Gather') : 'Craft';
       rows.push({ action, name, crafts, yieldEff, units: v.units, focus, time });
     }
-    rows.sort((a,b) => (b.focus - a.focus) || a.action.localeCompare(b.action) || a.name.localeCompare(b.name));
+    rows.sort((a, b) => (b.focus - a.focus) || a.action.localeCompare(b.action) || a.name.localeCompare(b.name));
     leafTableBody.innerHTML = '';
     for (const r of rows) {
       const tr = document.createElement('tr');
@@ -919,31 +1053,72 @@ const Store = (() => {
     treeOut.textContent = '{}';
     leafTableBody.innerHTML = '';
     summaryBadge.textContent = 'Error';
+    if (distWrap) distWrap.innerHTML = '';
   }
-  function hideError(){ errors.style.display = 'none'; errors.textContent = ''; }
+  function hideError() { errors.style.display = 'none'; errors.textContent = ''; }
 
-  function renderSummaryDesired(target, qty, available, safe, opt, timeSafe, timeOpt) {
+  // ----- UI wiring -----
+  function getCalcMode() {
+    const r = calcModeRadios.find(x => x.checked);
+    return r ? r.value : 'qty';
+  }
+
+  function updateAllPreview() {
+    if (getCalcMode() !== 'all' || !targetSelect.value) {
+      maxCraftablePreview.textContent = '—';
+      return;
+    }
+    const available = Number(availableFocusAll.value) || 0;
+    const target = targetSelect.value;
+    const bestSafe = maxCraftable(target, available, YieldMode.Safe);
+    const bestAvg = maxCraftable(target, available, YieldMode.Avg);
+    const bestOpt = maxCraftable(target, available, YieldMode.Opt);
+    maxCraftablePreview.textContent = `Max: Safe ${bestSafe} / Avg ${bestAvg} / Opt ${bestOpt}`;
+  }
+
+  // Switch qty/all UI + keep preview fresh
+  calcModeRadios.forEach(r => r.addEventListener('change', () => {
+    const mode = getCalcMode();
+    qtyWrap.style.display = mode === 'qty' ? '' : 'none';
+    allWrap.style.display = mode === 'all' ? '' : 'none';
+    updateAllPreview();
+  }));
+  availableFocusAll.addEventListener('input', updateAllPreview);
+  targetSelect.addEventListener('change', updateAllPreview);
+
+  function renderSummaryDesired(target, qty, available, totalSafe, totalAvg, totalOpt, timeSafe, timeAvg, timeOpt) {
     summary.style.display = '';
     summaryBadge.textContent = `Target: ${target} × ${qty}`;
     focusChips.innerHTML = ''; timeChips.innerHTML = '';
-    if (Math.abs(safe - opt) < 1e-9) focusChips.appendChild(chip(`Total Focus: ${fmt2(safe)}`));
-    else focusChips.appendChild(chip(`Total Focus: ${fmt2(safe)} (Safe) → ${fmt2(opt)} (Optimistic)`));
+
+    if (Math.abs(totalSafe - totalAvg) < 1e-9 && Math.abs(totalAvg - totalOpt) < 1e-9) {
+      focusChips.appendChild(chip(`Total Focus: ${fmt2(totalSafe)}`));
+    } else {
+      focusChips.appendChild(chip(`Total Focus: ${fmt2(totalSafe)} (Safe) → ${fmt2(totalAvg)} (Avg) → ${fmt2(totalOpt)} (Opt)`));
+    }
+
     focusChips.appendChild(chip(`Available: ${fmt2(available)}`));
-    if (safe <= available) focusChips.appendChild(chip(`✅ Craftable (Safe). Leftover: ${fmt2(available - safe)}`, 'ok'));
-    else focusChips.appendChild(chip(`❌ Short by ${fmt2(safe - available)} (Safe)`, 'err'));
-    if (Math.abs(timeSafe - timeOpt) < 1e-6) timeChips.appendChild(chip(`Time: ${formatDuration(timeSafe)}`));
-    else timeChips.appendChild(chip(`Time: ${formatDuration(timeSafe)} → ${formatDuration(timeOpt)}`));
+    if (totalSafe <= available) focusChips.appendChild(chip(`✅ Craftable (Safe). Leftover: ${fmt2(available - totalSafe)}`, 'ok'));
+    else focusChips.appendChild(chip(`❌ Short by ${fmt2(totalSafe - available)} (Safe)`, 'err'));
+
+    if (Math.abs(timeSafe - timeAvg) < 1e-6 && Math.abs(timeAvg - timeOpt) < 1e-6) {
+      timeChips.appendChild(chip(`Time: ${formatDuration(timeSafe)}`));
+    } else {
+      timeChips.appendChild(chip(`Time: ${formatDuration(timeSafe)} → ${formatDuration(timeAvg)} → ${formatDuration(timeOpt)}`));
+    }
   }
-  function renderSummaryAll(target, available, bestQtySafe, bestQtyOpt, focusUsedSafe, timeSafe, timeOpt) {
+
+  function renderSummaryAll(target, available, bestQtySafe, bestQtyAvg, bestQtyOpt, focusUsedSafe, timeSafe, timeAvg, timeOpt) {
     summary.style.display = '';
     summaryBadge.textContent = `Use all Focus on ${target}`;
     focusChips.innerHTML = ''; timeChips.innerHTML = '';
-    if (bestQtySafe === bestQtyOpt) {
+
+    if (bestQtySafe === bestQtyAvg && bestQtyAvg === bestQtyOpt) {
       focusChips.appendChild(chip(`Max craftable: ${bestQtySafe}`));
       timeChips.appendChild(chip(`Time: ${formatDuration(timeSafe)}`));
     } else {
-      focusChips.appendChild(chip(`Max craftable: ${bestQtySafe} (Safe) → ${bestQtyOpt} (Optimistic)`));
-      timeChips.appendChild(chip(`Time: ${formatDuration(timeSafe)} → ${formatDuration(timeOpt)}`));
+      focusChips.appendChild(chip(`Max craftable: ${bestQtySafe} (Safe) → ${bestQtyAvg} (Avg) → ${bestQtyOpt} (Opt)`));
+      timeChips.appendChild(chip(`Time: ${formatDuration(timeSafe)} → ${formatDuration(timeAvg)} → ${formatDuration(timeOpt)}`));
     }
     focusChips.appendChild(chip(`Focus used (Safe): ${fmt2(focusUsedSafe)} of ${fmt2(available)}`));
   }
@@ -982,34 +1157,9 @@ const Store = (() => {
     URL.revokeObjectURL(a.href);
   }
 
-  // Small helpers the listeners rely on (were missing before)
-  function getYieldMode() {
-    const r = yieldModeRadios.find(x => x.checked);
-    return r ? r.value : 'safe';
-  }
-  function getCalcMode() {
-    const r = calcModeRadios.find(x => x.checked);
-    return r ? r.value : 'qty';
-  }
-
   // Events
   btnRefreshMaterials.addEventListener('click', updateMaterials);
-  calcModeRadios.forEach(r => r.addEventListener('change', () => {
-    const mode = getCalcMode();
-    qtyWrap.style.display = mode === 'qty' ? '' : 'none';
-    allWrap.style.display = mode === 'all' ? '' : 'none';
-  }));
-  yieldModeRadios.forEach(r => r.addEventListener('change', () => {
-    // live preview for "all" mode
-    if (getCalcMode() === 'all' && targetSelect.value && isFiniteNum(Number(availableFocusAll.value))) {
-      const target = targetSelect.value;
-      const available = Number(availableFocusAll.value) || 0;
-      const best = maxCraftable(target, available, getYieldMode());
-      maxCraftablePreview.textContent = `Max (current yield mode): ${best}`;
-    } else {
-      maxCraftablePreview.textContent = '—';
-    }
-  }));
+
   showTimes.addEventListener('change', () => {
     treeOut.textContent = renderTree(state.lastLines || [], showTimes.checked);
   });
@@ -1025,40 +1175,59 @@ const Store = (() => {
       if (calcMode === 'all') {
         const available = Number(availableFocusAll.value);
         if (!isFiniteNum(available) || available < 0) throw new Error('Enter available Focus.');
+
         const bestSafe = maxCraftable(target, available, YieldMode.Safe);
+        const bestAvg = maxCraftable(target, available, YieldMode.Avg);
         const bestOpt = maxCraftable(target, available, YieldMode.Opt);
 
         const safeRun = calculateFocus(target, bestSafe, YieldMode.Safe);
-        const focusUsedSafe = safeRun.totalFocus;
         const timeSafe = sumTimeSeconds(safeRun.lines);
+        const focusUsedSafe = safeRun.totalFocus;
+
+        const avgRun = calculateFocus(target, bestAvg, YieldMode.Avg);
+        const timeAvg = sumTimeSeconds(avgRun.lines);
 
         const optRun = calculateFocus(target, bestOpt, YieldMode.Opt);
         const timeOpt = sumTimeSeconds(optRun.lines);
 
+        // Keep tree/checklist deterministic (Safe)
         state.lastLines = safeRun.lines;
-        state.lastTotals = { bestQtySafe: bestSafe, bestQtyOpt: bestOpt, focusUsedSafe, timeSafe, timeOpt };
+        state.lastTotals = {
+          bestQtySafe: bestSafe, bestQtyAvg: bestAvg, bestQtyOpt: bestOpt,
+          focusUsedSafe, timeSafe, timeAvg, timeOpt
+        };
 
-        renderSummaryAll(target, available, bestSafe, bestOpt, focusUsedSafe, timeSafe, timeOpt);
+        renderSummaryAll(target, available, bestSafe, bestAvg, bestOpt, focusUsedSafe, timeSafe, timeAvg, timeOpt);
         treeOut.textContent = renderTree(state.lastLines, showTimes.checked);
         renderLeafChecklist(state.lastLines);
+        renderDistributions(safeRun.lines);
 
-        maxCraftablePreview.textContent = `Max (current yield mode): ${maxCraftable(target, available, getYieldMode())}`;
+        // Also refresh the inline preview
+        maxCraftablePreview.textContent = `Max: Safe ${bestSafe} / Avg ${bestAvg} / Opt ${bestOpt}`;
       } else {
         const qty = Number(desiredQty.value || 1);
         const available = Number(availableFocusQty.value || 0);
         if (!isFiniteNum(qty) || qty < 0) throw new Error('Enter desired quantity (>= 0).');
 
-        const safe = calculateFocus(target, qty, YieldMode.Safe);
-        const opt = calculateFocus(target, qty, YieldMode.Opt);
-        const timeSafe = sumTimeSeconds(safe.lines);
-        const timeOpt = sumTimeSeconds(opt.lines);
+        const safeRun = calculateFocus(target, qty, YieldMode.Safe);
+        const avgRun = calculateFocus(target, qty, YieldMode.Avg);
+        const optRun = calculateFocus(target, qty, YieldMode.Opt);
 
-        state.lastLines = safe.lines;
-        state.lastTotals = { focusSafe: safe.totalFocus, focusOpt: opt.totalFocus, timeSafe, timeOpt };
+        const timeSafe = sumTimeSeconds(safeRun.lines);
+        const timeAvg = sumTimeSeconds(avgRun.lines);
+        const timeOpt = sumTimeSeconds(optRun.lines);
 
-        renderSummaryDesired(target, qty, available, safe.totalFocus, opt.totalFocus, timeSafe, timeOpt);
+        // Keep tree/checklist deterministic (Safe)
+        state.lastLines = safeRun.lines;
+        state.lastTotals = {
+          focusSafe: safeRun.totalFocus, focusAvg: avgRun.totalFocus, focusOpt: optRun.totalFocus,
+          timeSafe, timeAvg, timeOpt
+        };
+
+        renderSummaryDesired(target, qty, available, safeRun.totalFocus, avgRun.totalFocus, optRun.totalFocus, timeSafe, timeAvg, timeOpt);
         treeOut.textContent = renderTree(state.lastLines, showTimes.checked);
         renderLeafChecklist(state.lastLines);
+        renderDistributions(safeRun.lines);
       }
     } catch (e) { showError(String(e.message || e)); }
   });
@@ -1075,3 +1244,4 @@ const Store = (() => {
   // init
   updateMaterials();
 })();
+
