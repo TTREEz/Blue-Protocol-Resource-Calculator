@@ -31,28 +31,34 @@ const csvEsc = s => {
 // ----------------- Sample data -----------------
 const SAMPLE = [
     {
-        "Name": "Mystery Metal",
-        "FocusCost": 10,
-        "Yield": 1,
-        "TimePerCraftSeconds": 5,
-        "IsMineable": false,
-        "Ingredients": { "Boru Ore": 8, "Burning Powder": 1 }
-    },
-    {
         "Name": "Burning Powder",
         "FocusCost": 20,
         "Yield": 15,
+        "YieldMin": null,
+        "YieldMax": null,
         "TimePerCraftSeconds": 5,
         "IsMineable": false,
-        "Ingredients": { "Charcoal": 1 }
+        "Ingredients": {
+            "Charcoal": 1
+        },
+        "YieldOutcomes": null,
+        "YieldMinChance": null,
+        "YieldMaxChance": null
     },
     {
         "Name": "Charcoal",
         "FocusCost": 0,
         "Yield": 10,
+        "YieldMin": null,
+        "YieldMax": null,
         "TimePerCraftSeconds": 5,
         "IsMineable": false,
-        "Ingredients": { "Logs": 28 }
+        "Ingredients": {
+            "Logs": 28
+        },
+        "YieldOutcomes": null,
+        "YieldMinChance": null,
+        "YieldMaxChance": null
     },
     {
         "Name": "Boru Ore",
@@ -60,16 +66,70 @@ const SAMPLE = [
         "Yield": 12,
         "YieldMin": 11,
         "YieldMax": 12,
+        "TimePerCraftSeconds": 0,
         "IsMineable": true,
-        /* Optional probability example the calculator already supports:
-           "YieldOutcomes": { "11": 0.7, "12": 0.3 }
-        */
+        "Ingredients": {},
+        "YieldOutcomes": null,
+        "YieldMinChance": null,
+        "YieldMaxChance": null
     },
     {
         "Name": "Logs",
         "FocusCost": 0,
         "Yield": 1,
-        "IsMineable": true
+        "YieldMin": null,
+        "YieldMax": null,
+        "TimePerCraftSeconds": 0,
+        "IsMineable": true,
+        "Ingredients": {},
+        "YieldOutcomes": null,
+        "YieldMinChance": null,
+        "YieldMaxChance": null
+    },
+    {
+        "Name": "Rich Boru Ore",
+        "FocusCost": 20,
+        "Yield": 11.4,
+        "YieldMin": 10,
+        "YieldMax": 12,
+        "TimePerCraftSeconds": 5,
+        "IsMineable": true,
+        "Ingredients": {},
+        "YieldOutcomes": null,
+        "YieldMinChance": null,
+        "YieldMaxChance": null
+    },
+    {
+        "Name": "Mystery Metal - Novice",
+        "FocusCost": 10,
+        "Yield": null,
+        "YieldMin": 1,
+        "YieldMax": 2,
+        "TimePerCraftSeconds": 5,
+        "IsMineable": false,
+        "Ingredients": {
+            "Boru Ore": 8,
+            "Burning Powder": 1
+        },
+        "YieldOutcomes": null,
+        "YieldMinChance": 0.8,
+        "YieldMaxChance": 0.2
+    },
+    {
+        "Name": "Mystery Metal - Master",
+        "FocusCost": 10,
+        "Yield": null,
+        "YieldMin": 1,
+        "YieldMax": 3,
+        "TimePerCraftSeconds": 5,
+        "IsMineable": false,
+        "Ingredients": {
+            "Rich Boru Ore": 8,
+            "Burning Powder": 1
+        },
+        "YieldOutcomes": null,
+        "YieldMinChance": 0.7,
+        "YieldMaxChance": 0.1
     }
 ];
 
@@ -325,7 +385,7 @@ const Store = (() => {
             }))
             .filter(r => r.name && r.qty); // only rows that actually have inputs
     }
-    
+
     function readForm() {
         const yieldStr = String(rYield.value ?? '').trim();
         const cleanPct = (el) => {
