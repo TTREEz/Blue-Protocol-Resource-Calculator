@@ -315,6 +315,17 @@ const Store = (() => {
         toolsMsg.textContent = '';
     }
 
+    // Helper: return the input elements for every ingredient row
+    function ingredientRows() {
+        return Array.from(ingTableBody.querySelectorAll('tr'))
+            .map(tr => ({
+                el: tr,
+                name: tr.querySelector('.ing-name'),
+                qty: tr.querySelector('.ing-qty')
+            }))
+            .filter(r => r.name && r.qty); // only rows that actually have inputs
+    }
+    
     function readForm() {
         const yieldStr = String(rYield.value ?? '').trim();
         const cleanPct = (el) => {
