@@ -117,7 +117,7 @@ const SAMPLE = [
     "TimePerCraftSeconds": 5,
     "IsMineable": false,
     "Ingredients": { "Rich Boru Ore": 8, "Burning Powder": 1 },
-    "YieldOutcomes": { "1": 70, "2": 20, "3": 10 }, // Example multi-outcome
+    "YieldOutcomes": { "1": 70, "2": 20, "3": 10 },
     "YieldMinChance": null,
     "YieldMaxChance": null
   }
@@ -265,6 +265,7 @@ const Store = (() => {
   const rYmin = $('#rYmin');
   const rYmax = $('#rYmax');
 
+  // Yield type sections (for cleaner UI)
   const yieldTypeEl = $('#yieldType');
   const fixedBox = $('#fixedBox');
   const rangeBox = $('#rangeBox');
@@ -290,6 +291,10 @@ const Store = (() => {
   const fileRecipes = $('#fileRecipes');
   const jsonText = $('#jsonText');
   const importStatus = $('#importStatus');
+
+  // Min/Max % fields may or may not exist depending on your HTML — guard them
+  const rYminP = $('#rYminP') || null;
+  const rYmaxP = $('#rYmaxP') || null;
 
   // Tools panel
   const sampleYields = $('#sampleYields');
@@ -425,9 +430,9 @@ const Store = (() => {
 
   // ----- Yield type UI
   function applyYieldTypeUI(type) {
-    fixedBox.style.display = (type === 'fixed') ? '' : 'none';
-    rangeBox.style.display = (type === 'range') ? '' : 'none';
-    multiBox.style.display = (type === 'multi') ? '' : 'none';
+    if (fixedBox) fixedBox.style.display = (type === 'fixed') ? '' : 'none';
+    if (rangeBox) rangeBox.style.display = (type === 'range') ? '' : 'none';
+    if (multiBox) multiBox.style.display = (type === 'multi') ? '' : 'none';
     recomputeSamplesUI(); // gate Tool buttons accordingly
   }
   function inferYieldTypeFromRecord(r) {
@@ -466,6 +471,11 @@ const Store = (() => {
     rYmin.value  = (r?.YieldMin == null) ? '' : r.YieldMin;
     rYmax.value  = (r?.YieldMax == null) ? '' : r.YieldMax;
 
+    // Optional: legacy Min/Max chance fields (only assign if they exist in the DOM)
+    const toPct = v => (v == null ? '' : (Number(v) <= 1 ? (Number(v) * 100) : Number(v)));
+    if (rYminP) rYminP.value = toPct(r?.YieldMinChance);
+    if (rYmaxP) rYmaxP.value = toPct(r?.YieldMaxChance);
+
     // Outcomes grid
     renderOutcomes(r?.YieldOutcomes);
 
@@ -483,10 +493,15 @@ const Store = (() => {
     const yieldStr = String(rYield.value ?? '').trim();
     const type = yieldTypeEl ? yieldTypeEl.value : 'fixed';
 
-    // Collect Outcomes first
+    // Collect Outcomes first (we'll attach after rec is created)
     const outPairs = outcomeRows()
       .map(r => [Number(r.qty.value), Number(r.prob.value)])
       .filter(([q,p]) => Number.isFinite(q) && q >= 0 && Number.isFinite(p) && p >= 0);
+
+    const cleanPct = (el) => {
+      const s = String(el?.value ?? '').trim();
+      return s === '' ? null : Number(s);
+    };
 
     const rec = {
       Name: rName.value.trim(),
@@ -501,15 +516,18 @@ const Store = (() => {
       YieldMin: (rYmin.value === '' ? null : nz(rYmin.value)),
       YieldMax: (rYmax.value === '' ? null : nz(rYmax.value)),
 
-      // Outcomes (unnormalized here; Store will normalize)
-      YieldOutcomes: outPairs.length ? Object.fromEntries(outPairs) : null,
+      // Outcomes filled below
+      YieldOutcomes: null,
 
-      // Deprecated fields are not surfaced in UI anymore
-      YieldMinChance: null,
-      YieldMaxChance: null,
+      // Deprecated fields (only read if inputs exist)
+      YieldMinChance: rYminP ? cleanPct(rYminP) : null,
+      YieldMaxChance: rYmaxP ? cleanPct(rYmaxP) : null,
 
       Ingredients: {}
     };
+
+    // Attach outcomes now (Store will normalize)
+    rec.YieldOutcomes = outPairs.length ? Object.fromEntries(outPairs) : null;
 
     // Prune fields based on selected type
     if (type === 'fixed') {
@@ -640,7 +658,7 @@ const Store = (() => {
     toolsMsg.textContent = 'Built outcome % from samples.';
   });
 
-  // ----- Outcomes grid buttons
+  // Outcomes grid buttons
   btnAddOutcome?.addEventListener('click', e => { e.preventDefault(); addOutcomeRow(); });
   btnClearOutcomes?.addEventListener('click', e => { e.preventDefault(); outTableBody.innerHTML = ''; addOutcomeRow(); });
 
@@ -964,6 +982,16 @@ const Store = (() => {
     URL.revokeObjectURL(a.href);
   }
 
+  // Small helpers the listeners rely on (were missing before)
+  function getYieldMode() {
+    const r = yieldModeRadios.find(x => x.checked);
+    return r ? r.value : 'safe';
+  }
+  function getCalcMode() {
+    const r = calcModeRadios.find(x => x.checked);
+    return r ? r.value : 'qty';
+  }
+
   // Events
   btnRefreshMaterials.addEventListener('click', updateMaterials);
   calcModeRadios.forEach(r => r.addEventListener('change', () => {
@@ -985,15 +1013,6 @@ const Store = (() => {
   showTimes.addEventListener('change', () => {
     treeOut.textContent = renderTree(state.lastLines || [], showTimes.checked);
   });
-
-  function getYieldMode() {
-    const r = yieldModeRadios.find(x => x.checked);
-    return r ? r.value : 'safe';
-    }
-  function getCalcMode() {
-    const r = calcModeRadios.find(x => x.checked);
-    return r ? r.value : 'qty';
-  }
 
   btnCalc.addEventListener('click', () => {
     hideError();
