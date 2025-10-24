@@ -42,6 +42,8 @@ const SAMPLE = [
       "Charcoal": 1
     },
     "YieldOutcomes": null,
+    "YieldMinChance": null,
+    "YieldMaxChance": null
   },
   {
     "Name": "Charcoal",
@@ -55,6 +57,8 @@ const SAMPLE = [
       "Logs": 28
     },
     "YieldOutcomes": null,
+    "YieldMinChance": null,
+    "YieldMaxChance": null
   },
   {
     "Name": "Boru Ore",
@@ -66,6 +70,8 @@ const SAMPLE = [
     "IsMineable": true,
     "Ingredients": {},
     "YieldOutcomes": null,
+    "YieldMinChance": null,
+    "YieldMaxChance": null
   },
   {
     "Name": "Logs",
@@ -77,6 +83,8 @@ const SAMPLE = [
     "IsMineable": true,
     "Ingredients": {},
     "YieldOutcomes": null,
+    "YieldMinChance": null,
+    "YieldMaxChance": null
   },
   {
     "Name": "Rich Boru Ore",
@@ -88,6 +96,8 @@ const SAMPLE = [
     "IsMineable": true,
     "Ingredients": {},
     "YieldOutcomes": null,
+    "YieldMinChance": null,
+    "YieldMaxChance": null
   },
   {
     "Name": "Mystery Metal - Novice",
@@ -102,6 +112,8 @@ const SAMPLE = [
       "Burning Powder": 1
     },
     "YieldOutcomes": null,
+    "YieldMinChance": null,
+    "YieldMaxChance": null
   },
   {
     "Name": "Mystery Metal - Master",
@@ -116,10 +128,102 @@ const SAMPLE = [
       "Burning Powder": 1
     },
     "YieldOutcomes": {
-      "1": 0.70,
-      "2": 0.20,
-      "3": 0.10
+      "1": 0.7000000000000001,
+      "2": 0.20000000000000004,
+      "3": 0.10000000000000002
     },
+    "YieldMinChance": null,
+    "YieldMaxChance": null
+  },
+  {
+    "Name": "Pink Musk",
+    "FocusCost": 20,
+    "Yield": 13,
+    "YieldMin": null,
+    "YieldMax": null,
+    "TimePerCraftSeconds": 5,
+    "IsMineable": true,
+    "Ingredients": {},
+    "YieldOutcomes": null,
+    "YieldMinChance": null,
+    "YieldMaxChance": null
+  },
+  {
+    "Name": "Tender Plant Stems",
+    "FocusCost": 0,
+    "Yield": null,
+    "YieldMin": null,
+    "YieldMax": null,
+    "TimePerCraftSeconds": 5,
+    "IsMineable": true,
+    "Ingredients": {},
+    "YieldOutcomes": {
+      "0": 0.8,
+      "1": 0.2
+    },
+    "YieldMinChance": null,
+    "YieldMaxChance": null
+  },
+  {
+    "Name": "Tartberry Juice",
+    "FocusCost": 0,
+    "Yield": null,
+    "YieldMin": 3,
+    "YieldMax": 6,
+    "TimePerCraftSeconds": 5,
+    "IsMineable": true,
+    "Ingredients": {},
+    "YieldOutcomes": null,
+    "YieldMinChance": null,
+    "YieldMaxChance": null
+  },
+  {
+    "Name": "Potion Catalyst",
+    "FocusCost": 0,
+    "Yield": 1,
+    "YieldMin": null,
+    "YieldMax": null,
+    "TimePerCraftSeconds": 5,
+    "IsMineable": false,
+    "Ingredients": {
+      "Tartberry Juice": 3,
+      "Tender Plant Stems": 5
+    },
+    "YieldOutcomes": null,
+    "YieldMinChance": null,
+    "YieldMaxChance": null
+  },
+  {
+    "Name": "Snowflake Parsely",
+    "FocusCost": 20,
+    "Yield": 13,
+    "YieldMin": null,
+    "YieldMax": null,
+    "TimePerCraftSeconds": 5,
+    "IsMineable": true,
+    "Ingredients": {},
+    "YieldOutcomes": null,
+    "YieldMinChance": null,
+    "YieldMaxChance": null
+  },
+  {
+    "Name": "Basic: Healing Aromatic",
+    "FocusCost": 25,
+    "Yield": null,
+    "YieldMin": null,
+    "YieldMax": null,
+    "TimePerCraftSeconds": 5,
+    "IsMineable": false,
+    "Ingredients": {
+      "Snowflake Parsely": 5,
+      "Potion Catalyst": 1
+    },
+    "YieldOutcomes": {
+      "0": 0.5,
+      "1": 0.5
+    },
+    "YieldMinChance": null,
+    "YieldMaxChance": null
   }
 ];
 
