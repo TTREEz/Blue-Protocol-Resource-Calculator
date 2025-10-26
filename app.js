@@ -128,9 +128,9 @@ const SAMPLE = [
       "Burning Powder": 1
     },
     "YieldOutcomes": {
-      "1": 0.7000000000000001,
-      "2": 0.20000000000000004,
-      "3": 0.10000000000000002
+      "1": 0.7,
+      "2": 0.19999999999999998,
+      "3": 0.09999999999999999
     },
     "YieldMinChance": null,
     "YieldMaxChance": null
@@ -221,6 +221,38 @@ const SAMPLE = [
     "YieldOutcomes": {
       "0": 0.5,
       "1": 0.5
+    },
+    "YieldMinChance": null,
+    "YieldMaxChance": null
+  },
+  {
+    "Name": "Azte Ore",
+    "FocusCost": 20,
+    "Yield": null,
+    "YieldMin": 10,
+    "YieldMax": 12,
+    "TimePerCraftSeconds": 5,
+    "IsMineable": true,
+    "Ingredients": {},
+    "YieldOutcomes": null,
+    "YieldMinChance": null,
+    "YieldMaxChance": null
+  },
+  {
+    "Name": "Radiant Stone - Novice",
+    "FocusCost": 10,
+    "Yield": null,
+    "YieldMin": null,
+    "YieldMax": null,
+    "TimePerCraftSeconds": 5,
+    "IsMineable": false,
+    "Ingredients": {
+      "Azte Ore": 8,
+      "Burning Powder": 1
+    },
+    "YieldOutcomes": {
+      "1": 0.8,
+      "2": 0.2
     },
     "YieldMinChance": null,
     "YieldMaxChance": null
