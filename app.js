@@ -128,9 +128,9 @@ const SAMPLE = [
       "Burning Powder": 1
     },
     "YieldOutcomes": {
-      "1": 0.7,
-      "2": 0.19999999999999998,
-      "3": 0.09999999999999999
+      "1": 0.7000000000000001,
+      "2": 0.2,
+      "3": 0.1
     },
     "YieldMinChance": null,
     "YieldMaxChance": null
@@ -253,6 +253,85 @@ const SAMPLE = [
     "YieldOutcomes": {
       "1": 0.8,
       "2": 0.2
+    },
+    "YieldMinChance": null,
+    "YieldMaxChance": null
+  },
+  {
+    "Name": "Rich Azte Ore",
+    "FocusCost": 20,
+    "Yield": null,
+    "YieldMin": 10,
+    "YieldMax": 12,
+    "TimePerCraftSeconds": 5,
+    "IsMineable": true,
+    "Ingredients": {},
+    "YieldOutcomes": null,
+    "YieldMinChance": null,
+    "YieldMaxChance": null
+  },
+  {
+    "Name": "Luna Ore",
+    "FocusCost": 20,
+    "Yield": null,
+    "YieldMin": 10,
+    "YieldMax": 12,
+    "TimePerCraftSeconds": 5,
+    "IsMineable": true,
+    "Ingredients": {},
+    "YieldOutcomes": null,
+    "YieldMinChance": null,
+    "YieldMaxChance": null
+  },
+  {
+    "Name": "Rich Luna Ore",
+    "FocusCost": 20,
+    "Yield": null,
+    "YieldMin": 10,
+    "YieldMax": 12,
+    "TimePerCraftSeconds": 5,
+    "IsMineable": true,
+    "Ingredients": {},
+    "YieldOutcomes": null,
+    "YieldMinChance": null,
+    "YieldMaxChance": null
+  },
+  {
+    "Name": "Radiant Stone - Master",
+    "FocusCost": 10,
+    "Yield": null,
+    "YieldMin": null,
+    "YieldMax": null,
+    "TimePerCraftSeconds": 5,
+    "IsMineable": false,
+    "Ingredients": {
+      "Rich Azte Ore": 8,
+      "Burning Powder": 1
+    },
+    "YieldOutcomes": {
+      "1": 0.7000000000000001,
+      "2": 0.20000000000000004,
+      "3": 0.10000000000000002
+    },
+    "YieldMinChance": null,
+    "YieldMaxChance": null
+  },
+  {
+    "Name": "Fine Forgestone - Master",
+    "FocusCost": 10,
+    "Yield": null,
+    "YieldMin": null,
+    "YieldMax": null,
+    "TimePerCraftSeconds": 5,
+    "IsMineable": false,
+    "Ingredients": {
+      "Rich Luna Ore": 8,
+      "Burning Powder": 1
+    },
+    "YieldOutcomes": {
+      "1": 0.7000000000000001,
+      "2": 0.20000000000000004,
+      "3": 0.10000000000000002
     },
     "YieldMinChance": null,
     "YieldMaxChance": null
@@ -1380,4 +1459,5 @@ const Store = (() => {
   // init
   updateMaterials();
 })();
+
 
