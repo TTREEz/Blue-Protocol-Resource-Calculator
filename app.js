@@ -128,9 +128,9 @@ const SAMPLE = [
       "Burning Powder": 1
     },
     "YieldOutcomes": {
-      "1": 0.7000000000000001,
-      "2": 0.2,
-      "3": 0.1
+      "1": 0.7,
+      "2": 0.19999999999999998,
+      "3": 0.09999999999999999
     },
     "YieldMinChance": null,
     "YieldMaxChance": null
@@ -253,85 +253,6 @@ const SAMPLE = [
     "YieldOutcomes": {
       "1": 0.8,
       "2": 0.2
-    },
-    "YieldMinChance": null,
-    "YieldMaxChance": null
-  },
-  {
-    "Name": "Rich Azte Ore",
-    "FocusCost": 20,
-    "Yield": null,
-    "YieldMin": 10,
-    "YieldMax": 12,
-    "TimePerCraftSeconds": 5,
-    "IsMineable": true,
-    "Ingredients": {},
-    "YieldOutcomes": null,
-    "YieldMinChance": null,
-    "YieldMaxChance": null
-  },
-  {
-    "Name": "Luna Ore",
-    "FocusCost": 20,
-    "Yield": null,
-    "YieldMin": 10,
-    "YieldMax": 12,
-    "TimePerCraftSeconds": 5,
-    "IsMineable": true,
-    "Ingredients": {},
-    "YieldOutcomes": null,
-    "YieldMinChance": null,
-    "YieldMaxChance": null
-  },
-  {
-    "Name": "Rich Luna Ore",
-    "FocusCost": 20,
-    "Yield": null,
-    "YieldMin": 10,
-    "YieldMax": 12,
-    "TimePerCraftSeconds": 5,
-    "IsMineable": true,
-    "Ingredients": {},
-    "YieldOutcomes": null,
-    "YieldMinChance": null,
-    "YieldMaxChance": null
-  },
-  {
-    "Name": "Radiant Stone - Master",
-    "FocusCost": 10,
-    "Yield": null,
-    "YieldMin": null,
-    "YieldMax": null,
-    "TimePerCraftSeconds": 5,
-    "IsMineable": false,
-    "Ingredients": {
-      "Rich Azte Ore": 8,
-      "Burning Powder": 1
-    },
-    "YieldOutcomes": {
-      "1": 0.7000000000000001,
-      "2": 0.20000000000000004,
-      "3": 0.10000000000000002
-    },
-    "YieldMinChance": null,
-    "YieldMaxChance": null
-  },
-  {
-    "Name": "Fine Forgestone - Master",
-    "FocusCost": 10,
-    "Yield": null,
-    "YieldMin": null,
-    "YieldMax": null,
-    "TimePerCraftSeconds": 5,
-    "IsMineable": false,
-    "Ingredients": {
-      "Rich Luna Ore": 8,
-      "Burning Powder": 1
-    },
-    "YieldOutcomes": {
-      "1": 0.7000000000000001,
-      "2": 0.20000000000000004,
-      "3": 0.10000000000000002
     },
     "YieldMinChance": null,
     "YieldMaxChance": null
@@ -468,6 +389,90 @@ const Store = (() => {
     t.classList.add('active');
     $('#' + t.dataset.tab).classList.add('active');
   }));
+})();
+
+
+// ----------------- PROFILE (Masteries) -----------------
+const Profile = (() => {
+  const key = 'bp_profile_v1';
+  const listeners = new Set();
+  function onChange() { listeners.forEach(fn => fn()); }
+  function subscribe(fn){ listeners.add(fn); return () => listeners.delete(fn); }
+  function load(){
+    try { return JSON.parse(localStorage.getItem(key) || '{}') || {}; }
+    catch(e){ return {}; }
+  }
+  function save(data){
+    localStorage.setItem(key, JSON.stringify(data || {}));
+    onChange();
+  }
+  function get(){ return { 
+    fastCraft: !!state.fastCraft, 
+    ultraFast: !!state.ultraFast,
+    yieldMultPct: Number(state.yieldMultPct || 0),
+    craftBonusPct: Number(state.craftBonusPct || 0),
+    gatherDoublePct: Number(state.gatherDoublePct || 0)
+  }; }
+  let state = Object.assign({
+    fastCraft:false,
+    ultraFast:false,
+    yieldMultPct:0,
+    craftBonusPct:0,
+    gatherDoublePct:0
+  }, load());
+  return { subscribe, get, set(v){ state = Object.assign(state, v||{}); save(state); }, _state: () => state };
+})();
+
+// Profile UI wiring
+(() => {
+  const elFast = $('#pfFastCraft');
+  const elUltra = $('#pfUltraFast');
+  const elMult = $('#pfYieldMult');
+  const elCraft = $('#pfCraftBonusPct');
+  const elGather = $('#pfGatherDoublePct');
+  const elStatus = $('#pfStatus');
+  const pfPreview = $('#pfPreview');
+  function fromState(){
+    const s = Profile._state();
+    if (elFast) elFast.checked = !!s.fastCraft;
+    if (elUltra) elUltra.checked = !!s.ultraFast;
+    if (elMult) elMult.value = String(s.yieldMultPct || 0);
+    if (elCraft) elCraft.value = String(s.craftBonusPct || 0);
+    if (elGather) elGather.value = String(s.gatherDoublePct || 0);
+    renderPreview();
+  }
+  function toState(){
+    const s = {
+      fastCraft: !!(elFast && elFast.checked),
+      ultraFast: !!(elUltra && elUltra.checked),
+      yieldMultPct: Number(elMult?.value || 0),
+      craftBonusPct: Number(elCraft?.value || 0),
+      gatherDoublePct: Number(elGather?.value || 0)
+    };
+    Profile.set(s);
+    if (elStatus){ elStatus.textContent='Saved'; elStatus.className='pill ok'; }
+    renderPreview();
+  }
+  function chip(text){ const el=document.createElement('span'); el.className='chip'; el.textContent=text; return el; }
+  function renderPreview(){
+    if (!pfPreview) return;
+    pfPreview.innerHTML='';
+    const s = Profile.get();
+    pfPreview.appendChild(chip(`Craft speed: ${s.ultraFast ? '2s cap' : (s.fastCraft ? '3s cap' : 'default')}`));
+    if ((s.yieldMultPct||0) !== 0) pfPreview.appendChild(chip(`Global yield ${s.yieldMultPct>0?'+':''}${s.yieldMultPct}%`));
+    if ((s.craftBonusPct||0) > 0) pfPreview.appendChild(chip(`Craft +1 bonus @ ${s.craftBonusPct}%`));
+    if ((s.gatherDoublePct||0) > 0) pfPreview.appendChild(chip(`Gather double @ ${s.gatherDoublePct}%`));
+  }
+  ['change','input'].forEach(ev => {
+    elFast?.addEventListener(ev, toState);
+    elUltra?.addEventListener(ev, toState);
+    elMult?.addEventListener(ev, toState);
+    elCraft?.addEventListener(ev, toState);
+    elGather?.addEventListener(ev, toState);
+  });
+  Profile.subscribe(renderPreview);
+  // Initialize on load
+  fromState();
 })();
 
 // ----------------- BUILDER MODULE -----------------
@@ -630,13 +635,19 @@ const Store = (() => {
     rName.focus();
   }
 
+  
   function duplicateSelected() {
     const base = Store.get(selected);
     if (!base) return;
     const copy = JSON.parse(JSON.stringify(base));
-    copy.Name = uniqueName(copy.Name + ' Copy');
-    loadForm(copy);
+    copy.Name = uniqueName(base.Name + ' Copy');
+    // Save copy as a new record without touching the original
+    const newName = Store.upsert(copy);
+    selected = newName;
+    renderList();
+    loadForm(Store.get(newName));
   }
+
   function uniqueName(base) {
     let n = base, i = 2;
     while (Store.get(n)) n = `${base} ${i++}`;
@@ -1136,6 +1147,34 @@ const Store = (() => {
     return Math.max(0, Number.isFinite(y) ? y : 1);
   }
 
+  
+  function applyProfileYield(action, baseYield) {
+    const s = Profile.get();
+    let y = Math.max(0, Number(baseYield)||0);
+    // Global multiplier
+    y *= (1 + (Number(s.yieldMultPct||0) / 100));
+    // Action-specific bonuses
+    if (action === 'Craft') {
+      const bonusEV = (Number(s.craftBonusPct||0) / 100) * 1; // +1 output EV scaled by chance
+      y += Math.max(0, bonusEV);
+    } else if (action === 'Mine' || action === 'Gather') {
+      const p = Math.max(0, Number(s.gatherDoublePct||0) / 100);
+      // Expected factor: (1-p)*1 + p*2 = 1 + p
+      y *= (1 + p);
+    }
+    return y;
+  }
+
+  function effectiveTimePerCraft(rec, action) {
+    let t = Math.max(0, nz(rec.TimePerCraftSeconds, 0));
+    if (action === 'Craft') {
+      const s = Profile.get();
+      const cap = s.ultraFast ? 2 : (s.fastCraft ? 3 : null);
+      if (cap !== null) t = Math.min(t, cap);
+    }
+    return t;
+  }
+
   function calculateFocus(target, unitsRequested, mode) {
     const stack = [];
     const lines = [];
@@ -1148,18 +1187,19 @@ const Store = (() => {
       }
       stack.push(name);
 
-      const y = effectiveYield(rec, mode);
+      const action = rec.IsMineable
+        ? ((rec.FocusCost || 0) > 0 ? 'Mine' : 'Gather')
+        : 'Craft';
+      let y = effectiveYield(rec, mode);
+      y = applyProfileYield(action, y);
       if (reqUnits > 0 && y <= 0) {
         throw new Error(`Effective yield is 0 for "${rec.Name}" in current yield mode; cannot produce the requested units. Try Average/Optimistic or define probabilities.`);
       }
       const crafts = Math.ceil(reqUnits / Math.max(y, 0.0000001)); // guard tiny floats
       const nodeFocus = crafts * (rec.FocusCost || 0);
-      const nodeTime = crafts * Math.max(0, rec.TimePerCraftSeconds || 0);
+      const nodeTime = crafts * effectiveTimePerCraft(rec, action);
 
-      const action = rec.IsMineable
-        ? ((rec.FocusCost || 0) > 0 ? 'Mine' : 'Gather')
-        : 'Craft';
-
+            // action already computed above
       lines.push({
         Level: level,
         Action: action,
@@ -1459,5 +1499,4 @@ const Store = (() => {
   // init
   updateMaterials();
 })();
-
 

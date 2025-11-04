@@ -15,6 +15,7 @@
       <nav class="tabs" role="tablist" aria-label="Main">
         <button class="tab active" data-tab="builder" role="tab" aria-selected="true">Builder</button>
         <button class="tab" data-tab="calculator" role="tab" aria-selected="false">Calculator</button>
+        <button class="tab" data-tab="profile" role="tab" aria-selected="false">Profile</button>
       </nav>
     </div>
   </header>
@@ -372,6 +373,60 @@
         </div>
       </aside>
     </section>
+  
+    <!-- PROFILE -->
+    <section id="profile" class="panel" role="tabpanel" aria-labelledby="tab-profile">
+      <div class="card">
+        <div class="inner">
+          <div class="section-title">
+            <h2>Player Profile — Masteries</h2>
+            <div class="toolbar">
+              <span class="muted">These settings affect the calculator only (saved locally).</span>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label>Crafting speed masteries</label>
+              <label class="pill"><input id="pfFastCraft" type="checkbox" /> Fast Crafting (cap to 3s)</label>
+              <label class="pill"><input id="pfUltraFast" type="checkbox" /> Ultra‑Fast Crafting (cap to 2s)</label>
+              <small class="muted">Ultra‑Fast overrides Fast if both are enabled.</small>
+            </div>
+            <div class="field">
+              <label>Global yield multiplier (%)</label>
+              <input id="pfYieldMult" type="number" min="-90" step="1" placeholder="e.g., 10" />
+              <small class="muted">Applied to all actions after base yield & distributions.</small>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label>Crafting: chance to produce +1 extra output per craft (%)</label>
+              <input id="pfCraftBonusPct" type="number" min="0" max="100" step="1" placeholder="e.g., 10" />
+              <small class="muted">Models masteries like Weaving bonus output.</small>
+            </div>
+            <div class="field">
+              <label>Gathering/Mining: chance to double output (%)</label>
+              <input id="pfGatherDoublePct" type="number" min="0" max="100" step="1" placeholder="e.g., 10" />
+              <small class="muted">Models masteries like Gemology double‑gather.</small>
+            </div>
+          </div>
+
+          <hr />
+          <div class="row">
+            <div class="field">
+              <label>Preview</label>
+              <div class="chips" id="pfPreview"></div>
+            </div>
+            <div class="field">
+              <label>Storage</label>
+              <div class="pill" id="pfStatus">Saved</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
   </main>
 
   <script src="app.js"></script>
