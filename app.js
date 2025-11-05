@@ -128,9 +128,9 @@ const SAMPLE = [
       "Burning Powder": 1
     },
     "YieldOutcomes": {
-      "1": 0.7,
-      "2": 0.19999999999999998,
-      "3": 0.09999999999999999
+      "1": 0.7000000000000001,
+      "2": 0.2,
+      "3": 0.1
     },
     "YieldMinChance": null,
     "YieldMaxChance": null
@@ -254,6 +254,92 @@ const SAMPLE = [
       "1": 0.8,
       "2": 0.2
     },
+    "YieldMinChance": null,
+    "YieldMaxChance": null
+  },
+  {
+    "Name": "Raw Ore of Ruby",
+    "FocusCost": 20,
+    "Yield": null,
+    "YieldMin": 7,
+    "YieldMax": 8,
+    "TimePerCraftSeconds": 5,
+    "IsMineable": true,
+    "Ingredients": {},
+    "YieldOutcomes": null,
+    "YieldMinChance": null,
+    "YieldMaxChance": null
+  },
+  {
+    "Name": "Rich Ore of Ruby",
+    "FocusCost": 20,
+    "Yield": null,
+    "YieldMin": 7,
+    "YieldMax": 8,
+    "TimePerCraftSeconds": 5,
+    "IsMineable": true,
+    "Ingredients": {},
+    "YieldOutcomes": null,
+    "YieldMinChance": null,
+    "YieldMaxChance": null
+  },
+  {
+    "Name": "Ruby",
+    "FocusCost": 20,
+    "Yield": 1,
+    "YieldMin": null,
+    "YieldMax": null,
+    "TimePerCraftSeconds": 5,
+    "IsMineable": false,
+    "Ingredients": {
+      "Raw Ore of Ruby": 7
+    },
+    "YieldOutcomes": null,
+    "YieldMinChance": null,
+    "YieldMaxChance": null
+  },
+  {
+    "Name": "Resin",
+    "FocusCost": 0,
+    "Yield": null,
+    "YieldMin": 2,
+    "YieldMax": 3,
+    "TimePerCraftSeconds": 5,
+    "IsMineable": true,
+    "Ingredients": {},
+    "YieldOutcomes": null,
+    "YieldMinChance": null,
+    "YieldMaxChance": null
+  },
+  {
+    "Name": "Gem Wax",
+    "FocusCost": 20,
+    "Yield": 15,
+    "YieldMin": null,
+    "YieldMax": null,
+    "TimePerCraftSeconds": 5,
+    "IsMineable": false,
+    "Ingredients": {
+      "Resin": 2
+    },
+    "YieldOutcomes": null,
+    "YieldMinChance": null,
+    "YieldMaxChance": null
+  },
+  {
+    "Name": "Ruby - Power 3",
+    "FocusCost": 20,
+    "Yield": 1,
+    "YieldMin": null,
+    "YieldMax": null,
+    "TimePerCraftSeconds": 5,
+    "IsMineable": false,
+    "Ingredients": {
+      "Rich Ore of Ruby": 5,
+      "Gem Wax": 2,
+      "Ruby": 1
+    },
+    "YieldOutcomes": null,
     "YieldMinChance": null,
     "YieldMaxChance": null
   }
