@@ -28,10 +28,61 @@ const csvEsc = s => {
   return (s.includes(',') || s.includes('"')) ? `"${s.replace(/"/g, '""')}"` : s;
 };
 
+
+// ----------------- Life Skills (taxonomy) -----------------
+const LIFE_SKILLS = [
+  "Smelting","Culinary","Gemcrafting","Weaving","Artisanry","Alchemy",
+  "Mineralogy","Botany","Gemology"
+];
+const CRAFTING_SKILLS = new Set(["Smelting","Culinary","Gemcrafting","Weaving","Artisanry","Alchemy"]);
+const GATHERING_SKILLS = new Set(["Mineralogy","Botany","Gemology"]);
+
+// Preset mastery toggles per skill -> effects that roll into EV/time
+const PERK_LIBRARY = {
+  Smelting: [
+    { id:'smelt_time',   label:'Time Saver',          desc:'Reduced crafting time.',          effects:{ timePct:-15 } },
+    { id:'smelt_yield',  label:'Yield Booster',       desc:'Improves odds for extra output.', effects:{ yieldPct:10 } },
+    { id:'smelt_plus1',  label:'+1 Output Chance',    desc:'Occasional extra bar/stone.',     effects:{ plusOnePct:5 } },
+  ],
+  Gemcrafting: [
+    { id:'gemc_time',    label:'Time Saver',          desc:'Reduced crafting time.',          effects:{ timePct:-10 } },
+    { id:'gemc_yield',   label:'Quality/Gains Bonus', desc:'Slight increase to result EV.',   effects:{ yieldPct:10 } },
+  ],
+  Weaving: [
+    { id:'weave_time',   label:'Time Saver',          desc:'Reduced crafting time.',          effects:{ timePct:-20 } },
+    { id:'weave_bonus',  label:'Bonus Dye',           desc:'Chance to craft 1 extra dye.',    effects:{ plusOnePct:10 } },
+  ],
+  Artisanry: [
+    { id:'art_time',     label:'Time Saver',          desc:'Reduced crafting time.',          effects:{ timePct:-10 } },
+    { id:'art_yield',    label:'Batch Gains',         desc:'Slight increase to batch yield.', effects:{ yieldPct:10 } },
+  ],
+  Culinary: [
+    { id:'cul_time',     label:'Time Saver',          desc:'Reduced cooking time.',           effects:{ timePct:-10 } },
+    { id:'cul_upgrade',  label:'Rarity Upgrade',      desc:'Chance to improve result tier.',  effects:{ plusOnePct:12 } },
+  ],
+  Alchemy: [
+    { id:'alc_time',     label:'Time Saver',          desc:'Reduced brewing time.',           effects:{ timePct:-10 } },
+    { id:'alc_upgrade',  label:'Rarity Upgrade',      desc:'Chance to craft higher tier.',    effects:{ plusOnePct:12 } },
+  ],
+  Mineralogy: [
+    { id:'min_time',     label:'Faster Gathering',    desc:'Reduced gather time.',            effects:{ timePct:-10 } },
+    { id:'min_double',   label:'Double Gather',       desc:'Occasional extra ore.',           effects:{ doublePct:15 } },
+  ],
+  Botany: [
+    { id:'bot_time',     label:'Faster Gathering',    desc:'Reduced gather time.',            effects:{ timePct:-10 } },
+    { id:'bot_double',   label:'Double Gather',       desc:'Occasional extra herbs.',         effects:{ doublePct:15 } },
+  ],
+  Gemology: [
+    { id:'geo_time',     label:'Faster Gathering',    desc:'Reduced gather time.',            effects:{ timePct:-10 } },
+    { id:'geo_double',   label:'Double Gather',       desc:'Occasional extra gems.',          effects:{ doublePct:15 } },
+  ],
+};
+
 // ----------------- Sample data -----------------
 const SAMPLE = [
   {
     "Name": "Burning Powder",
+    "LifeSkill": "Artisanry",
     "FocusCost": 20,
     "Yield": 15,
     "YieldMin": null,
@@ -47,6 +98,7 @@ const SAMPLE = [
   },
   {
     "Name": "Charcoal",
+    "LifeSkill": "Artisanry",
     "FocusCost": 0,
     "Yield": 10,
     "YieldMin": null,
@@ -62,6 +114,7 @@ const SAMPLE = [
   },
   {
     "Name": "Boru Ore",
+    "LifeSkill": "Mineralogy",
     "FocusCost": 20,
     "Yield": null,
     "YieldMin": 10,
@@ -75,6 +128,7 @@ const SAMPLE = [
   },
   {
     "Name": "Logs",
+    "LifeSkill": "Artisanry",
     "FocusCost": 0,
     "Yield": 1,
     "YieldMin": null,
@@ -88,6 +142,7 @@ const SAMPLE = [
   },
   {
     "Name": "Rich Boru Ore",
+    "LifeSkill": "Mineralogy",
     "FocusCost": 20,
     "Yield": null,
     "YieldMin": 10,
@@ -101,6 +156,7 @@ const SAMPLE = [
   },
   {
     "Name": "Mystery Metal - Novice",
+    "LifeSkill": "Smelting",
     "FocusCost": 10,
     "Yield": null,
     "YieldMin": 1,
@@ -117,6 +173,7 @@ const SAMPLE = [
   },
   {
     "Name": "Mystery Metal - Master",
+    "LifeSkill": "Smelting",
     "FocusCost": 10,
     "Yield": null,
     "YieldMin": null,
@@ -128,15 +185,16 @@ const SAMPLE = [
       "Burning Powder": 1
     },
     "YieldOutcomes": {
-      "1": 0.7000000000000001,
-      "2": 0.2,
-      "3": 0.1
+      "1": 0.7,
+      "2": 0.19999999999999996,
+      "3": 0.09999999999999998
     },
     "YieldMinChance": null,
     "YieldMaxChance": null
   },
   {
     "Name": "Pink Musk",
+    "LifeSkill": "Botany",
     "FocusCost": 20,
     "Yield": 13,
     "YieldMin": null,
@@ -150,6 +208,7 @@ const SAMPLE = [
   },
   {
     "Name": "Tender Plant Stems",
+    "LifeSkill": "Botany",
     "FocusCost": 0,
     "Yield": null,
     "YieldMin": null,
@@ -166,6 +225,7 @@ const SAMPLE = [
   },
   {
     "Name": "Tartberry Juice",
+    "LifeSkill": "Botany",
     "FocusCost": 0,
     "Yield": null,
     "YieldMin": 3,
@@ -179,6 +239,7 @@ const SAMPLE = [
   },
   {
     "Name": "Potion Catalyst",
+    "LifeSkill": "Alchemy",
     "FocusCost": 0,
     "Yield": 1,
     "YieldMin": null,
@@ -195,6 +256,7 @@ const SAMPLE = [
   },
   {
     "Name": "Snowflake Parsely",
+    "LifeSkill": "Botany",
     "FocusCost": 20,
     "Yield": 13,
     "YieldMin": null,
@@ -208,6 +270,7 @@ const SAMPLE = [
   },
   {
     "Name": "Basic: Healing Aromatic",
+    "LifeSkill": "Alchemy",
     "FocusCost": 25,
     "Yield": null,
     "YieldMin": null,
@@ -227,6 +290,7 @@ const SAMPLE = [
   },
   {
     "Name": "Azte Ore",
+    "LifeSkill": "Mineralogy",
     "FocusCost": 20,
     "Yield": null,
     "YieldMin": 10,
@@ -240,6 +304,7 @@ const SAMPLE = [
   },
   {
     "Name": "Radiant Stone - Novice",
+    "LifeSkill": "Smelting",
     "FocusCost": 10,
     "Yield": null,
     "YieldMin": null,
@@ -259,6 +324,7 @@ const SAMPLE = [
   },
   {
     "Name": "Raw Ore of Ruby",
+    "LifeSkill": "Mineralogy",
     "FocusCost": 20,
     "Yield": null,
     "YieldMin": 9,
@@ -272,6 +338,7 @@ const SAMPLE = [
   },
   {
     "Name": "Rich Ore of Ruby",
+    "LifeSkill": "Mineralogy",
     "FocusCost": 20,
     "Yield": null,
     "YieldMin": 7,
@@ -285,6 +352,7 @@ const SAMPLE = [
   },
   {
     "Name": "Ruby",
+    "LifeSkill": "Gemcrafting",
     "FocusCost": 20,
     "Yield": 1,
     "YieldMin": null,
@@ -300,6 +368,7 @@ const SAMPLE = [
   },
   {
     "Name": "Resin",
+    "LifeSkill": "Artisanry",
     "FocusCost": 0,
     "Yield": null,
     "YieldMin": 2,
@@ -313,6 +382,7 @@ const SAMPLE = [
   },
   {
     "Name": "Gem Wax",
+    "LifeSkill": "Artisanry",
     "FocusCost": 20,
     "Yield": 15,
     "YieldMin": null,
@@ -328,6 +398,7 @@ const SAMPLE = [
   },
   {
     "Name": "Ruby - Power 3",
+    "LifeSkill": "Gemcrafting",
     "FocusCost": 20,
     "Yield": 1,
     "YieldMin": null,
@@ -350,6 +421,51 @@ const Store = (() => {
   const listeners = new Set();
   let map = {};
   let arrayFormat = true;
+
+const SKILLS = LIFE_SKILLS;
+
+function normalizeSkillName(s){
+  s = String(s || '').trim();
+  if (!s) return null;
+  // case-insensitive match to known skills
+  const m = SKILLS.find(x => x.toLowerCase() === s.toLowerCase());
+  return m || null;
+}
+
+function classifyLifeSkill(name, isMineable, ingredients) {
+  name = String(name||'').toLowerCase();
+  const ingNames = Object.keys(ingredients||{}).map(k => String(k||'').toLowerCase()).join(' ');
+
+  // Gathered first
+  if (isMineable) {
+    if (/(ore|metal|ingot|stone|rock|azte|boru)/.test(name)) return "Mineralogy";
+    if (/(gem|ruby|sapphire|emerald|opal|radiant)/.test(name)) return "Gemology";
+    if (/(herb|plant|berry|stem|juice|parsely|musk|log|wood|resin)/.test(name)) return "Botany";
+    // Try infer from ingredients too
+    if (/(gem|ruby|sapphire|emerald|opal)/.test(ingNames)) return "Gemology";
+    if (/(berry|herb|plant|wood|resin)/.test(ingNames)) return "Botany";
+    if (/(ore|metal|ingot|stone)/.test(ingNames)) return "Mineralogy";
+    return "Mineralogy"; // default gather
+  }
+
+  // Crafted
+  if (/(smelt|metal|ingot|stone)/.test(name)) return "Smelting";
+  if (/(potion|elixir|serum|aromatic|catalyst|alchemy)/.test(name)) return "Alchemy";
+  if (/(food|meal|soup|bread|culin|stew)/.test(name)) return "Culinary";
+  if (/(gem|cut|jewel|ring|ruby)/.test(name)) return "Gemcrafting";
+  if (/(dye|cloth|thread|weave)/.test(name)) return "Weaving";
+  if (/(wax|powder|lumber|resin|artisan)/.test(name)) return "Artisanry";
+
+  // fallback heuristic from ingredients
+  if (/(ore|metal|ingot|stone)/.test(ingNames)) return "Smelting";
+  if (/(gem|ruby|sapphire|emerald|opal)/.test(ingNames)) return "Gemcrafting";
+  if (/(berry|herb|plant|food|meal|juice)/.test(ingNames)) return "Culinary";
+  if (/(potion|elixir|serum|aromatic|catalyst)/.test(ingNames)) return "Alchemy";
+  if (/(dye|cloth|thread)/.test(ingNames)) return "Weaving";
+  if (/(wax|powder|lumber|resin)/.test(ingNames)) return "Artisanry";
+
+  return null;
+}
 
   function onChange() { listeners.forEach(fn => fn()); }
   function subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); }
@@ -392,6 +508,7 @@ const Store = (() => {
 
     const nr = {
       Name: String(r.Name || '').trim(),
+      LifeSkill: null,
       FocusCost: nz(r.FocusCost),
       Yield: hasFixed ? (Number.isFinite(fixedYield) && fixedYield > 0 ? fixedYield : 1) : null,
       // Min/Max: allow 0 as valid
@@ -416,6 +533,10 @@ const Store = (() => {
         if (k && Number.isFinite(qty) && qty > 0) nr.Ingredients[k] = qty;
       }
     }
+
+    // Assign/Infer Life Skill
+    const given = normalizeSkillName(r.LifeSkill);
+    nr.LifeSkill = given || classifyLifeSkill(nr.Name, nr.IsMineable, nr.Ingredients);
     return nr;
   }
 
@@ -479,98 +600,239 @@ const Store = (() => {
 
 
 // ----------------- PROFILE (Masteries) -----------------
+/**
+ * Fresh Profile tab:
+ * - User picks a Life Skill and then selects masteries for that skill.
+ * - We store compact selections per skill (levels + time caps).
+ * - Calculator applies these to EV (extra output chance / flat extras) and time caps (3s / 2s).
+ */
 const Profile = (() => {
-  const key = 'bp_profile_v1';
+  const key = 'bp_profile_v2';
   const listeners = new Set();
-  function onChange() { listeners.forEach(fn => fn()); }
+  function onChange(){ listeners.forEach(fn => fn()); }
   function subscribe(fn){ listeners.add(fn); return () => listeners.delete(fn); }
-  function load(){
-    try { return JSON.parse(localStorage.getItem(key) || '{}') || {}; }
-    catch(e){ return {}; }
+  function load(){ try { return JSON.parse(localStorage.getItem(key) || '{}') || {}; } catch(e){ return {}; } }
+  function save(data){ localStorage.setItem(key, JSON.stringify(data || {})); onChange(); }
+
+  const defaultState = { masteries:{} };
+  let state = Object.assign({}, defaultState, load());
+  if (!state.masteries || typeof state.masteries !== 'object') state.masteries = {};
+
+  // Get/Set helpers
+  function getSkillState(skill){
+    const k = LIFE_SKILLS.find(x => x === skill) || null;
+    return (k && state.masteries && state.masteries[k]) ? state.masteries[k] : {};
   }
-  function save(data){
-    localStorage.setItem(key, JSON.stringify(data || {}));
-    onChange();
+  function setSkillState(skill, patch){
+    const k = LIFE_SKILLS.find(x => x === skill) || null;
+    if (!k) return;
+    const cur = getSkillState(k);
+    state.masteries[k] = Object.assign({}, cur, patch || {});
+    save(state);
   }
-  function get(){ return { 
-    fastCraft: !!state.fastCraft, 
-    ultraFast: !!state.ultraFast,
-    yieldMultPct: Number(state.yieldMultPct || 0),
-    craftBonusPct: Number(state.craftBonusPct || 0),
-    gatherDoublePct: Number(state.gatherDoublePct || 0)
-  }; }
-  let state = Object.assign({
-    fastCraft:false,
-    ultraFast:false,
-    yieldMultPct:0,
-    craftBonusPct:0,
-    gatherDoublePct:0
-  }, load());
-  return { subscribe, get, set(v){ state = Object.assign(state, v||{}); save(state); }, _state: () => state };
+
+  return {
+    subscribe,
+    _state: () => state,
+    set(v){ state = Object.assign(state, v||{}); save(state); },
+    getSkillState, setSkillState
+  };
 })();
 
-// Profile UI wiring
-(() => {
-  const elFast = $('#pfFastCraft');
-  const elUltra = $('#pfUltraFast');
-  const elMult = $('#pfYieldMult');
-  const elCraft = $('#pfCraftBonusPct');
-  const elGather = $('#pfGatherDoublePct');
-  const elStatus = $('#pfStatus');
-  const pfPreview = $('#pfPreview');
-  function fromState(){
-    const s = Profile._state();
-    if (elFast) elFast.checked = !!s.fastCraft;
-    if (elUltra) elUltra.checked = !!s.ultraFast;
-    if (elMult) elMult.value = String(s.yieldMultPct || 0);
-    if (elCraft) elCraft.value = String(s.craftBonusPct || 0);
-    if (elGather) elGather.value = String(s.gatherDoublePct || 0);
-    renderPreview();
+// UI schema for each Life Skill
+const MASTERIES_UI = {
+  Mineralogy: {
+    groups: [
+      { key:'miningYieldLevel', legend:'Mining Yielding', type:'level', choices:[
+        {v:0, label:'None'}, {v:1, label:'Novice (+10% +1 on focus gather)'}, {v:2, label:'Pro (+20%)'}, {v:3, label:'Master (+30%)'}
+      ]},
+      { key:'timeCap', legend:'Mining Speed', type:'time', choices:[
+        {v:0, label:'Normal'}, {v:3, label:'Fast (3s)'}, {v:2, label:'Ultra-fast (2s)'}
+      ]}
+    ]
+  },
+  Botany: {
+    groups: [
+      { key:'sparePouchLevel', legend:'Spare Pouch', type:'level', choices:[
+        {v:0, label:'None'}, {v:1, label:'Lv.1 (+10% +1 on focus gather)'}, {v:2, label:'Lv.2 (+20%)'}, {v:3, label:'Lv.3 (+30%)'}
+      ]},
+      { key:'timeCap', legend:'Gathering Speed', type:'time', choices:[
+        {v:0, label:'Normal'}, {v:3, label:'Fast (3s)'}, {v:2, label:'Ultra-fast (2s)'}
+      ]}
+    ]
+  },
+  Gemology: {
+    groups: [
+      { key:'gemYieldGatherLevel', legend:'Gem Yielding (Gather)', type:'level', choices:[
+        {v:0, label:'None'}, {v:1, label:'Novice (+10% +1 on focus gather)'}, {v:2, label:'Pro (+20%)'}, {v:3, label:'Master (+30%)'}
+      ]},
+      { key:'timeCap', legend:'Mining Speed', type:'time', choices:[
+        {v:0, label:'Normal'}, {v:3, label:'Fast (3s)'}, {v:2, label:'Ultra-fast (2s)'}
+      ]}
+    ]
+  },
+  Smelting: {
+    groups: [
+      { key:'luckySmeltingLevel', legend:'Lucky Smelting (Mystery Metal/Radiant Stone/Fine Forgestone)', type:'level', choices:[
+        {v:0, label:'None'}, {v:1, label:'Lv1 (+5% +1)'}, {v:2, label:'Lv2 (+10% +1)'}, {v:3, label:'Lv3 (+15% +1)'}
+      ]},
+      { key:'timeCap', legend:'Smithing Speed', type:'time', choices:[
+        {v:0, label:'Normal'}, {v:3, label:'Fast Smithing (3s)'}, {v:2, label:'Ultra-fast Smithing (2s)'}
+      ]}
+    ]
+  },
+  Artisanry: {
+    groups: [
+      { key:'artisanryLevel', legend:'Artisanry', type:'level', choices:[
+        {v:0, label:'None'}, {v:1, label:'Lv1 (+2 on Burning Powder/Gem Wax)'}, {v:2, label:'Lv2 (+5 on Burning Powder/Gem Wax, +1 on Fast-Burning Powder)'}
+      ]},
+      { key:'timeCap', legend:'Crafting Speed', type:'time', choices:[
+        {v:0, label:'Normal'}, {v:3, label:'Fast Crafting (3s)'}, {v:2, label:'Ultra-fast Crafting (2s)'}
+      ]}
+    ]
+  },
+  Culinary: {
+    groups: [
+      { key:'luckyCookingLevel', legend:'Lucky Cooking', type:'level', choices:[
+        {v:0, label:'None'}, {v:1, label:'Lv.1 (+10% +1, excl. Cheer‑Up Treat)'}, {v:2, label:'Lv.2 (+20%)'}, {v:3, label:'Lv.3 (+30%)'}
+      ]},
+      { key:'timeCap', legend:'Cooking Speed', type:'time', choices:[
+        {v:0, label:'Normal'}, {v:3, label:'Fast Cooking (3s)'}, {v:2, label:'Ultra-fast Cooking (2s)'}
+      ]}
+    ]
+  },
+  Alchemy: {
+    groups: [
+      { key:'alchemyRefineLevel', legend:'Alchemy Refine', type:'level', choices:[
+        {v:0, label:'None'}, {v:1, label:'Lv.1 (+10% +1 on potions/particles)'}, {v:2, label:'Lv.2 (+20%)'}, {v:3, label:'Lv.3 (+30%)'}
+      ]},
+      { key:'sprayYieldLevel', legend:'Spray Yielding (Furniture dye sprays)', type:'level', choices:[
+        {v:0, label:'None'}, {v:1, label:'Lv.1 (+20% +1)'}, {v:2, label:'Lv.2 (+30% +1)'}
+      ]},
+      { key:'timeCap', legend:'Alchemy Speed', type:'time', choices:[
+        {v:0, label:'Normal'}, {v:3, label:'Fast Alchemy (3s)'}, {v:2, label:'Ultra-fast Alchemy (2s)'}
+      ]}
+    ]
+  },
+  Gemcrafting: {
+    groups: [
+      { key:'gemYieldCraftLevel', legend:'Gem Yielding (Craft)', type:'level', choices:[
+        {v:0, label:'None'}, {v:1, label:'Novice (+5% +1)'}, {v:2, label:'Pro (+10%)'}, {v:3, label:'Master (+15%)'}
+      ]},
+      { key:'timeCap', legend:'Processing Speed', type:'time', choices:[
+        {v:0, label:'Normal'}, {v:3, label:'Fast Processing (3s)'}, {v:2, label:'Ultra-fast Processing (2s)'}
+      ]}
+    ]
+  },
+  Weaving: {
+    groups: [
+      { key:'dyeYieldLevel', legend:'Dye Yielding', type:'level', choices:[
+        {v:0, label:'None'}, {v:1, label:'Lv.1 (+20% +1 on dyes)'}, {v:2, label:'Lv.2 (+30% +1)'}
+      ]},
+      { key:'timeCap', legend:'Weaving Speed', type:'time', choices:[
+        {v:0, label:'Normal'}, {v:3, label:'Fast Weaving (3s)'}, {v:2, label:'Ultra-fast Weaving (2s)'}
+      ]}
+    ]
   }
-  function toState(){
-    const s = {
-      fastCraft: !!(elFast && elFast.checked),
-      ultraFast: !!(elUltra && elUltra.checked),
-      yieldMultPct: Number(elMult?.value || 0),
-      craftBonusPct: Number(elCraft?.value || 0),
-      gatherDoublePct: Number(elGather?.value || 0)
-    };
-    Profile.set(s);
-    if (elStatus){ elStatus.textContent='Saved'; elStatus.className='pill ok'; }
-    renderPreview();
+};
+
+function renderMasteriesUI(skill){
+  const mount = document.querySelector('#pfMasteriesDynamic');
+  if (!mount) return;
+  mount.innerHTML = '';
+  const def = MASTERIES_UI[skill] || {groups:[]};
+  const sel = Profile.getSkillState(skill);
+
+  for (const group of def.groups){
+    const card = document.createElement('div');
+    card.className = 'subcard';
+    const legend = document.createElement('div');
+    legend.className = 'subcard-title';
+    legend.textContent = group.legend;
+    const body = document.createElement('div');
+    body.className = 'subcard-body';
+
+    const name = `ms_${skill}_${group.key}`;
+    for (const ch of group.choices){
+      const id = `${name}_${ch.v}`;
+      const label = document.createElement('label');
+      label.className = 'radio';
+      const input = document.createElement('input');
+      input.type = 'radio';
+      input.name = name;
+      input.id = id;
+      input.value = String(ch.v);
+      input.checked = String(sel[group.key] ?? 0) === String(ch.v);
+      input.addEventListener('change', () => {
+        const patch = {}; patch[group.key] = (group.type === 'time') ? Number(input.value) : Number(input.value);
+        Profile.setSkillState(skill, patch);
+      });
+      const span = document.createElement('span');
+      span.textContent = ch.label;
+      label.appendChild(input);
+      label.appendChild(span);
+      body.appendChild(label);
+    }
+
+    card.appendChild(legend);
+    card.appendChild(body);
+    mount.appendChild(card);
   }
+}
+
+(function profileUI(){
+  const selSkill = $('#pfSkillSelect');
+  const pfSkillChips = $('#pfSkillChips');
+  const pfStatus = $('#pfStatus');
+
   function chip(text){ const el=document.createElement('span'); el.className='chip'; el.textContent=text; return el; }
-  function renderPreview(){
-    if (!pfPreview) return;
-    pfPreview.innerHTML='';
-    const s = Profile.get();
-    pfPreview.appendChild(chip(`Craft speed: ${s.ultraFast ? '2s cap' : (s.fastCraft ? '3s cap' : 'default')}`));
-    if ((s.yieldMultPct||0) !== 0) pfPreview.appendChild(chip(`Global yield ${s.yieldMultPct>0?'+':''}${s.yieldMultPct}%`));
-    if ((s.craftBonusPct||0) > 0) pfPreview.appendChild(chip(`Craft +1 bonus @ ${s.craftBonusPct}%`));
-    if ((s.gatherDoublePct||0) > 0) pfPreview.appendChild(chip(`Gather double @ ${s.gatherDoublePct}%`));
-  }
-  ['change','input'].forEach(ev => {
-    elFast?.addEventListener(ev, toState);
-    elUltra?.addEventListener(ev, toState);
-    elMult?.addEventListener(ev, toState);
-    elCraft?.addEventListener(ev, toState);
-    elGather?.addEventListener(ev, toState);
-  });
-  Profile.subscribe(renderPreview);
-  // Initialize on load
-  fromState();
-})();
 
-// ----------------- BUILDER MODULE -----------------
+  function renderSkillChips(){
+    if (!pfSkillChips) return;
+    pfSkillChips.innerHTML = '';
+    const all = Profile._state().masteries || {};
+    for (const sk of LIFE_SKILLS){
+      const s = all[sk];
+      if (!s) continue;
+      const bits = [];
+      if (s.timeCap) bits.push(`${s.timeCap}s cap`);
+      if (sk === 'Smelting' && s.luckySmeltingLevel) bits.push(`Lucky L${s.luckySmeltingLevel}`);
+      if (sk === 'Artisanry' && s.artisanryLevel) bits.push(`Artisanry L${s.artisanryLevel}`);
+      if (sk === 'Culinary' && s.luckyCookingLevel) bits.push(`Lucky Cook L${s.luckyCookingLevel}`);
+      if (sk === 'Alchemy'){ 
+        if (s.alchemyRefineLevel) bits.push(`Refine L${s.alchemyRefineLevel}`);
+        if (s.sprayYieldLevel) bits.push(`Spray L${s.sprayYieldLevel}`);
+      }
+      if (sk === 'Gemcrafting' && s.gemYieldCraftLevel) bits.push(`Gem Yield L${s.gemYieldCraftLevel}`);
+      if (sk === 'Weaving' && s.dyeYieldLevel) bits.push(`Dye Yield L${s.dyeYieldLevel}`);
+      if (sk === 'Mineralogy' && s.miningYieldLevel) bits.push(`Yield L${s.miningYieldLevel}`);
+      if (sk === 'Botany' && s.sparePouchLevel) bits.push(`Pouch L${s.sparePouchLevel}`);
+      if (sk === 'Gemology' && s.gemYieldGatherLevel) bits.push(`Yield L${s.gemYieldGatherLevel}`);
+
+      if (bits.length) pfSkillChips.appendChild(chip(`${sk} — ${bits.join(', ')}`));
+    }
+  }
+
+  function onSkillChange(){ renderMasteriesUI(selSkill.value || 'Smelting'); }
+
+  ['change','input'].forEach(ev => selSkill?.addEventListener(ev, onSkillChange));
+  Profile.subscribe(() => { renderMasteriesUI(selSkill.value || 'Smelting'); renderSkillChips(); if (pfStatus){ pfStatus.textContent='Saved'; pfStatus.className='pill ok'; } });
+
+  // init
+  onSkillChange();
+  renderSkillChips();
+})();// ----------------- BUILDER MODULE -----------------
 (() => {
   const tblBody = $('#recipesTable tbody');
   const searchBox = $('#searchBox');
+  const skillFilter = $('#skillFilter');
   const storeStatus = $('#storeStatus');
 
   const rName = $('#rName');
   const rMine = $('#rMine');
   const rFocus = $('#rFocus');
   const rTime = $('#rTime');
+  const rLifeSkill = $('#rLifeSkill');
   const rYield = $('#rYield');
   const rYmin = $('#rYmin');
   const rYmax = $('#rYmax');
@@ -588,6 +850,7 @@ const Profile = (() => {
   const btnSave = $('#btnSave');
   const btnReset = $('#btnReset');
   const btnSortAZ = $('#btnSortAZ');
+  const btnSortSkill = $('#btnSortSkill');
 
   const btnAddIng = $('#btnAddIng');
   const btnAutofillIng = $('#btnAutofillIng');
@@ -627,6 +890,7 @@ const Profile = (() => {
 
   let selected = null; // selected recipe name
   let formDirty = false;
+  let sortMode = 'AZ'; // or 'SKILL'
 
   function setYieldTypeAndClear(type) {
     if (!yieldTypeEl) return;
@@ -668,32 +932,46 @@ const Profile = (() => {
   yieldTypeEl?.addEventListener('change', () => setYieldTypeAndClear(yieldTypeEl.value));
 
 
-  function renderList() {
-    const filter = (searchBox.value || '').toLowerCase().trim();
-    const names = Store.allNames().filter(n => !filter || n.toLowerCase().includes(filter));
-    tblBody.innerHTML = '';
-    for (const name of names) {
-      const r = Store.get(name);
-      const tr = document.createElement('tr');
-      if (name === selected) tr.classList.add('selected');
-      const tag = r.IsMineable ? 'mine' : (Object.keys(r.Ingredients).length ? 'craft' : 'solo');
+  
 
-      const yieldFixedCell = (r.Yield == null) ? '—' : fmt2(r.Yield);
-      const yieldRangeCell = (r.YieldMin == null && r.YieldMax == null)
-        ? '—'
-        : `${r.YieldMin ?? '—'} / ${r.YieldMax ?? '—'}`;
+function renderList() {
+  const filter = (searchBox.value || '').toLowerCase().trim();
+  const skillSel = (skillFilter?.value || '').trim();
+  let names = Store.allNames().filter(n => !filter || n.toLowerCase().includes(filter));
 
-      let outCell = '—';
-      if (r.YieldOutcomes && Object.keys(r.YieldOutcomes).length) {
-        const pairs = Object.entries(r.YieldOutcomes)
-          .map(([q, p]) => `${q}×${Math.round(((p <= 1 ? p * 100 : p)) * 100) / 100}%`);
-        // keep it readable; join all (table scrolls if long)
-        outCell = pairs.join(', ');
-      }
+  if (skillSel) {
+    names = names.filter(n => (Store.get(n)?.LifeSkill || '') === skillSel);
+  }
 
-      tr.innerHTML = `
+  if (sortMode === 'SKILL') {
+    names.sort((a,b) => {
+      const sa = Store.get(a)?.LifeSkill || '';
+      const sb = Store.get(b)?.LifeSkill || '';
+      return sa.localeCompare(sb) || a.localeCompare(b);
+    });
+  }
+
+  tblBody.innerHTML = '';
+  for (const name of names) {
+    const r = Store.get(name);
+    const tr = document.createElement('tr');
+    if (name === selected) tr.classList.add('selected');
+    const tag = r.IsMineable ? 'mine' : (Object.keys(r.Ingredients).length ? 'craft' : 'solo');
+
+    const yieldFixedCell = (r.Yield == null) ? '—' : fmt2(r.Yield);
+    const yieldRangeCell = (r.YieldMin == null && r.YieldMax == null) ? '—' : `${r.YieldMin ?? '—'} / ${r.YieldMax ?? '—'}`;
+
+    let outCell = '—';
+    if (r.YieldOutcomes && Object.keys(r.YieldOutcomes).length) {
+      const pairs = Object.entries(r.YieldOutcomes)
+        .map(([q, p]) => `${q}×${Math.round(((p <= 1 ? p * 100 : p)) * 100) / 100}%`);
+      outCell = pairs.join(', ');
+    }
+
+    tr.innerHTML = `
       <td>•</td>
       <td>${name}</td>
+      <td>${r.LifeSkill || '—'}</td>
       <td class="num">${yieldFixedCell}</td>
       <td class="num">${yieldRangeCell}</td>
       <td>${outCell}</td>
@@ -701,14 +979,12 @@ const Profile = (() => {
       <td class="num">${Math.round(r.TimePerCraftSeconds || 0)}</td>
       <td>${tag}</td>
     `;
-      tr.addEventListener('click', () => { select(name); });
-      tblBody.appendChild(tr);
-    }
-    storeStatus.textContent = `${Store.count()} recipes`;
+    tr.addEventListener('click', () => { select(name); });
+    tblBody.appendChild(tr);
   }
-
-
-  function select(name) {
+  storeStatus.textContent = `${Store.count()} recipes`;
+}
+function select(name) {
     selected = name;
     renderList();
     loadForm(Store.get(name));
@@ -832,6 +1108,7 @@ const Profile = (() => {
     $('#editTitle').textContent = r?.Name ? `Edit: ${r.Name}` : 'New Recipe';
     rName.value = r?.Name || '';
     rMine.checked = !!r?.IsMineable;
+    if (rLifeSkill) rLifeSkill.value = r?.LifeSkill || '';
     rFocus.value = r?.FocusCost ?? 0;
     rTime.value = r?.TimePerCraftSeconds ?? 0;
 
@@ -879,6 +1156,8 @@ const Profile = (() => {
       IsMineable: !!rMine.checked,
       FocusCost: nz(rFocus.value, 0),
       TimePerCraftSeconds: nz(rTime.value, 0),
+
+    LifeSkill: (rLifeSkill?.value || '').trim() || null,
 
       // Keep null if blank
       Yield: yieldStr === '' ? null : nz(yieldStr, 1),
@@ -1034,8 +1313,16 @@ const Profile = (() => {
   btnClearOutcomes?.addEventListener('click', e => { e.preventDefault(); outTableBody.innerHTML = ''; addOutcomeRow(); });
 
   // Events
+
+// Populate life skill filter options
+if (skillFilter) {
+  skillFilter.innerHTML = '<option value="">All skills</option>' + LIFE_SKILLS.map(s => `<option value="${s}">${s}</option>`).join('');
+}
   Store.subscribe(renderList);
   searchBox.addEventListener('input', renderList);
+  skillFilter?.addEventListener('change', renderList);
+  btnSortSkill?.addEventListener('click', () => { sortMode = 'SKILL'; renderList(); });
+  btnSortAZ?.addEventListener('click', () => { sortMode = 'AZ'; renderList(); });
   btnNew.addEventListener('click', newRecipe);
   btnDuplicate.addEventListener('click', duplicateSelected);
   btnDelete.addEventListener('click', del);
@@ -1189,6 +1476,90 @@ const Profile = (() => {
   }
 
   // ----- Core calc -----
+// Mastery EV logic (fresh)
+function _nameHas(rec, needles){
+  const n = String(rec?.Name||'').toLowerCase();
+  return needles.some(s => n.includes(String(s).toLowerCase()));
+}
+function masteryEVBonus(rec, action){
+  const skill = rec.LifeSkill || '';
+  const sel = (Profile._state().masteries||{})[skill] || {};
+  let add = 0;
+
+  // Gathering-with-focus helpers
+  const isGather = rec.IsMineable && (rec.FocusCost||0) > 0;
+
+  switch (skill){
+    case 'Mineralogy': {
+      if (isGather){
+        const p = {0:0,1:0.10,2:0.20,3:0.30}[Number(sel.miningYieldLevel||0)] || 0;
+        add += p;
+      }
+      break;
+    }
+    case 'Botany': {
+      if (isGather){
+        const p = {0:0,1:0.10,2:0.20,3:0.30}[Number(sel.sparePouchLevel||0)] || 0;
+        add += p;
+      }
+      break;
+    }
+    case 'Gemology': {
+      if (isGather){
+        const p = {0:0,1:0.10,2:0.20,3:0.30}[Number(sel.gemYieldGatherLevel||0)] || 0;
+        add += p;
+      }
+      break;
+    }
+    case 'Smelting': {
+      if (_nameHas(rec, ['mystery metal','radiant stone','fine forgestone'])){
+        const p = {0:0,1:0.05,2:0.10,3:0.15}[Number(sel.luckySmeltingLevel||0)] || 0;
+        add += p;
+      }
+      break;
+    }
+    case 'Artisanry': {
+      const lvl = Number(sel.artisanryLevel||0);
+      if (_nameHas(rec, ['burning powder','gem wax'])){
+        if (lvl === 1) add += 2;
+        if (lvl === 2) add += 5;
+      }
+      if (lvl === 2 && _nameHas(rec, ['fast-burning powder'])) add += 1;
+      break;
+    }
+    case 'Culinary': {
+      if (!_nameHas(rec, ['cheer-up treat'])){
+        const p = {0:0,1:0.10,2:0.20,3:0.30}[Number(sel.luckyCookingLevel||0)] || 0;
+        add += p;
+      }
+      break;
+    }
+    case 'Alchemy': {
+      if (!_nameHas(rec, ['arcane insight conversion'])){
+        const p = {0:0,1:0.10,2:0.20,3:0.30}[Number(sel.alchemyRefineLevel||0)] || 0;
+        add += p;
+      }
+      if (_nameHas(rec, ['spray'])){
+        const p2 = {0:0,1:0.20,2:0.30}[Number(sel.sprayYieldLevel||0)] || 0;
+        add += p2;
+      }
+      break;
+    }
+    case 'Gemcrafting': {
+      const p = {0:0,1:0.05,2:0.10,3:0.15}[Number(sel.gemYieldCraftLevel||0)] || 0;
+      add += p;
+      break;
+    }
+    case 'Weaving': {
+      if (_nameHas(rec, ['dye'])){
+        const p = {0:0,1:0.20,2:0.30}[Number(sel.dyeYieldLevel||0)] || 0;
+        add += p;
+      }
+      break;
+    }
+  }
+  return add;
+}
   const YieldMode = { Safe: 'safe', Avg: 'average', Opt: 'optimistic' };
 
   function effectiveYield(rec, mode) {
@@ -1234,32 +1605,29 @@ const Profile = (() => {
   }
 
   
-  function applyProfileYield(action, baseYield) {
-    const s = Profile.get();
-    let y = Math.max(0, Number(baseYield)||0);
-    // Global multiplier
-    y *= (1 + (Number(s.yieldMultPct||0) / 100));
-    // Action-specific bonuses
-    if (action === 'Craft') {
-      const bonusEV = (Number(s.craftBonusPct||0) / 100) * 1; // +1 output EV scaled by chance
-      y += Math.max(0, bonusEV);
-    } else if (action === 'Mine' || action === 'Gather') {
-      const p = Math.max(0, Number(s.gatherDoublePct||0) / 100);
-      // Expected factor: (1-p)*1 + p*2 = 1 + p
-      y *= (1 + p);
-    }
-    return y;
-  }
+  
 
-  function effectiveTimePerCraft(rec, action) {
-    let t = Math.max(0, nz(rec.TimePerCraftSeconds, 0));
-    if (action === 'Craft') {
-      const s = Profile.get();
-      const cap = s.ultraFast ? 2 : (s.fastCraft ? 3 : null);
-      if (cap !== null) t = Math.min(t, cap);
-    }
-    return t;
-  }
+function applyAllYieldMods(rec, action, baseYield){
+  let y = Math.max(0, Number(baseYield) || 0);
+  y += masteryEVBonus(rec, action);
+  return y;
+}
+
+
+
+  
+
+function effectiveTimePerCraft(rec, action){
+  let t = Math.max(0, nz(rec.TimePerCraftSeconds, 0));
+  const skill = rec.LifeSkill || '';
+  const sel = (Profile._state().masteries||{})[skill] || {};
+  const cap = Number(sel.timeCap || 0);
+  if (cap > 0) t = Math.min(t, cap);
+  return t;
+}
+
+
+
 
   function calculateFocus(target, unitsRequested, mode) {
     const stack = [];
@@ -1277,7 +1645,7 @@ const Profile = (() => {
         ? ((rec.FocusCost || 0) > 0 ? 'Mine' : 'Gather')
         : 'Craft';
       let y = effectiveYield(rec, mode);
-      y = applyProfileYield(action, y);
+      y = applyAllYieldMods(rec, action, y);
       if (reqUnits > 0 && y <= 0) {
         throw new Error(`Effective yield is 0 for "${rec.Name}" in current yield mode; cannot produce the requested units. Try Average/Optimistic or define probabilities.`);
       }

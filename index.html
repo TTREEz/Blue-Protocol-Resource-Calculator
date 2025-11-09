@@ -32,6 +32,7 @@
               <button id="btnDuplicate" class="btn small ghost">Duplicate</button>
               <button id="btnDelete" class="btn small ghost">Delete</button>
               <button id="btnSortAZ" class="btn small ghost">Sort A→Z</button>
+              <button id="btnSortSkill" class="btn small ghost">Sort by Life Skill</button>
             </div>
           </div>
 
@@ -39,6 +40,12 @@
             <div class="field">
               <label>Search</label>
               <input id="searchBox" type="text" placeholder="Filter by name..." />
+            </div>
+            <div class="field">
+              <label>Life Skill filter</label>
+              <select id="skillFilter">
+                <option value="">All skills</option>
+              </select>
             </div>
             <div class="field">
               <label>Status</label>
@@ -52,6 +59,7 @@
                 <tr>
                   <th style="width:32px"></th>
                   <th>Name</th>
+                  <th>Life Skill</th>
                   <th class="num">Yield</th>
                   <th class="num">Yield Min/Max</th>
                   <th>Outcomes</th>
@@ -87,6 +95,27 @@
               <small class="muted">If checked, action becomes Mine/Gather (no ingredients required).</small>
             </div>
           </div>
+
+<div class="row">
+      <div class="field">
+        <label>Life Skill</label>
+        <select id="rLifeSkill">
+          <option value="">— None / Infer —</option>
+          <option>Smelting</option>
+          <option>Culinary</option>
+          <option>Gemcrafting</option>
+          <option>Weaving</option>
+          <option>Artisanry</option>
+          <option>Alchemy</option>
+          <option>Mineralogy</option>
+          <option>Botany</option>
+          <option>Gemology</option>
+        </select>
+        <small class="muted">Optional. If omitted, we infer from name/ingredients.</small>
+      </div>
+      <div class="field"></div>
+    </div>
+
 
           <div class="row">
             <div class="field">
@@ -376,56 +405,48 @@
   
     <!-- PROFILE -->
     <section id="profile" class="panel" role="tabpanel" aria-labelledby="tab-profile">
-      <div class="card">
-        <div class="inner">
-          <div class="section-title">
-            <h2>Player Profile — Masteries</h2>
-            <div class="toolbar">
-              <span class="muted">These settings affect the calculator only (saved locally).</span>
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="field">
-              <label>Crafting speed masteries</label>
-              <label class="pill"><input id="pfFastCraft" type="checkbox" /> Fast Crafting (cap to 3s)</label>
-              <label class="pill"><input id="pfUltraFast" type="checkbox" /> Ultra‑Fast Crafting (cap to 2s)</label>
-              <small class="muted">Ultra‑Fast overrides Fast if both are enabled.</small>
-            </div>
-            <div class="field">
-              <label>Global yield multiplier (%)</label>
-              <input id="pfYieldMult" type="number" min="-90" step="1" placeholder="e.g., 10" />
-              <small class="muted">Applied to all actions after base yield & distributions.</small>
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="field">
-              <label>Crafting: chance to produce +1 extra output per craft (%)</label>
-              <input id="pfCraftBonusPct" type="number" min="0" max="100" step="1" placeholder="e.g., 10" />
-              <small class="muted">Models masteries like Weaving bonus output.</small>
-            </div>
-            <div class="field">
-              <label>Gathering/Mining: chance to double output (%)</label>
-              <input id="pfGatherDoublePct" type="number" min="0" max="100" step="1" placeholder="e.g., 10" />
-              <small class="muted">Models masteries like Gemology double‑gather.</small>
-            </div>
-          </div>
-
-          <hr />
-          <div class="row">
-            <div class="field">
-              <label>Preview</label>
-              <div class="chips" id="pfPreview"></div>
-            </div>
-            <div class="field">
-              <label>Storage</label>
-              <div class="pill" id="pfStatus">Saved</div>
-            </div>
-          </div>
+  <div class="card">
+    <div class="inner">
+      <div class="section-title">
+        <h2>Player Profile — Masteries</h2>
+        <div class="toolbar">
+          <span class="muted">Pick your unlocked masteries. These affect only the calculator and are saved locally.</span>
         </div>
       </div>
-    </section>
+
+      <div class="row">
+        <div class="field">
+          <label>Life Skill</label>
+          <select id="pfSkillSelect">
+            <option>Smelting</option>
+            <option>Culinary</option>
+            <option>Gemcrafting</option>
+            <option>Weaving</option>
+            <option>Artisanry</option>
+            <option>Alchemy</option>
+            <option>Mineralogy</option>
+            <option>Botany</option>
+            <option>Gemology</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="pfMasteriesDynamic" class="masteries"></div>
+
+      <hr />
+      <div class="row">
+        <div class="field">
+          <label>Selected masteries</label>
+          <div class="chips" id="pfSkillChips"></div>
+        </div>
+        <div class="field">
+          <label>Status</label>
+          <div class="pill" id="pfStatus">Saved</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
     
   </main>
 

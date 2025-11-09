@@ -54,3 +54,15 @@ td.num{text-align:right}
 
 #recipesTable tbody tr.selected{outline:2px solid var(--accent)}
 details summary{cursor:pointer}
+
+.perks{display:grid;grid-template-columns:1fr;gap:6px;margin:6px 0}
+.perks label.checkbox{display:flex;align-items:center;gap:8px}
+.perks small{opacity:.8}
+
+
+/* Profile masteries UI */
+.masteries{display:grid; gap:12px; grid-template-columns: repeat(auto-fit, minmax(260px,1fr));}
+.subcard{background:rgba(255,255,255,0.02); border:1px solid var(--line); border-radius:12px; padding:12px;}
+.subcard-title{font-weight:600; margin-bottom:8px; color:var(--text);}
+.subcard-body .radio{display:flex; align-items:center; gap:8px; margin:6px 0;}
+.subcard-body .radio input{accent-color:#7c9cff;}
