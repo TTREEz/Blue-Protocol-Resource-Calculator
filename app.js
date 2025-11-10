@@ -78,344 +78,6 @@ const PERK_LIBRARY = {
   ],
 };
 
-// ----------------- Sample data -----------------
-const SAMPLE = [
-  {
-    "Name": "Burning Powder",
-    "LifeSkill": "Artisanry",
-    "FocusCost": 20,
-    "Yield": 15,
-    "YieldMin": null,
-    "YieldMax": null,
-    "TimePerCraftSeconds": 5,
-    "IsMineable": false,
-    "Ingredients": {
-      "Charcoal": 1
-    },
-    "YieldOutcomes": null,
-    "YieldMinChance": null,
-    "YieldMaxChance": null
-  },
-  {
-    "Name": "Charcoal",
-    "LifeSkill": "Artisanry",
-    "FocusCost": 0,
-    "Yield": 10,
-    "YieldMin": null,
-    "YieldMax": null,
-    "TimePerCraftSeconds": 5,
-    "IsMineable": false,
-    "Ingredients": {
-      "Logs": 28
-    },
-    "YieldOutcomes": null,
-    "YieldMinChance": null,
-    "YieldMaxChance": null
-  },
-  {
-    "Name": "Boru Ore",
-    "LifeSkill": "Mineralogy",
-    "FocusCost": 20,
-    "Yield": null,
-    "YieldMin": 10,
-    "YieldMax": 12,
-    "TimePerCraftSeconds": 5,
-    "IsMineable": true,
-    "Ingredients": {},
-    "YieldOutcomes": null,
-    "YieldMinChance": null,
-    "YieldMaxChance": null
-  },
-  {
-    "Name": "Logs",
-    "LifeSkill": "Artisanry",
-    "FocusCost": 0,
-    "Yield": 1,
-    "YieldMin": null,
-    "YieldMax": null,
-    "TimePerCraftSeconds": 0,
-    "IsMineable": true,
-    "Ingredients": {},
-    "YieldOutcomes": null,
-    "YieldMinChance": null,
-    "YieldMaxChance": null
-  },
-  {
-    "Name": "Rich Boru Ore",
-    "LifeSkill": "Mineralogy",
-    "FocusCost": 20,
-    "Yield": null,
-    "YieldMin": 10,
-    "YieldMax": 12,
-    "TimePerCraftSeconds": 5,
-    "IsMineable": true,
-    "Ingredients": {},
-    "YieldOutcomes": null,
-    "YieldMinChance": null,
-    "YieldMaxChance": null
-  },
-  {
-    "Name": "Mystery Metal - Novice",
-    "LifeSkill": "Smelting",
-    "FocusCost": 10,
-    "Yield": null,
-    "YieldMin": 1,
-    "YieldMax": 2,
-    "TimePerCraftSeconds": 5,
-    "IsMineable": false,
-    "Ingredients": {
-      "Boru Ore": 8,
-      "Burning Powder": 1
-    },
-    "YieldOutcomes": null,
-    "YieldMinChance": null,
-    "YieldMaxChance": null
-  },
-  {
-    "Name": "Mystery Metal - Master",
-    "LifeSkill": "Smelting",
-    "FocusCost": 10,
-    "Yield": null,
-    "YieldMin": null,
-    "YieldMax": null,
-    "TimePerCraftSeconds": 5,
-    "IsMineable": false,
-    "Ingredients": {
-      "Rich Boru Ore": 8,
-      "Burning Powder": 1
-    },
-    "YieldOutcomes": {
-      "1": 0.7,
-      "2": 0.19999999999999996,
-      "3": 0.09999999999999998
-    },
-    "YieldMinChance": null,
-    "YieldMaxChance": null
-  },
-  {
-    "Name": "Pink Musk",
-    "LifeSkill": "Botany",
-    "FocusCost": 20,
-    "Yield": 13,
-    "YieldMin": null,
-    "YieldMax": null,
-    "TimePerCraftSeconds": 5,
-    "IsMineable": true,
-    "Ingredients": {},
-    "YieldOutcomes": null,
-    "YieldMinChance": null,
-    "YieldMaxChance": null
-  },
-  {
-    "Name": "Tender Plant Stems",
-    "LifeSkill": "Botany",
-    "FocusCost": 0,
-    "Yield": null,
-    "YieldMin": null,
-    "YieldMax": null,
-    "TimePerCraftSeconds": 5,
-    "IsMineable": true,
-    "Ingredients": {},
-    "YieldOutcomes": {
-      "0": 0.8,
-      "1": 0.2
-    },
-    "YieldMinChance": null,
-    "YieldMaxChance": null
-  },
-  {
-    "Name": "Tartberry Juice",
-    "LifeSkill": "Botany",
-    "FocusCost": 0,
-    "Yield": null,
-    "YieldMin": 3,
-    "YieldMax": 6,
-    "TimePerCraftSeconds": 5,
-    "IsMineable": true,
-    "Ingredients": {},
-    "YieldOutcomes": null,
-    "YieldMinChance": null,
-    "YieldMaxChance": null
-  },
-  {
-    "Name": "Potion Catalyst",
-    "LifeSkill": "Alchemy",
-    "FocusCost": 0,
-    "Yield": 1,
-    "YieldMin": null,
-    "YieldMax": null,
-    "TimePerCraftSeconds": 5,
-    "IsMineable": false,
-    "Ingredients": {
-      "Tartberry Juice": 3,
-      "Tender Plant Stems": 5
-    },
-    "YieldOutcomes": null,
-    "YieldMinChance": null,
-    "YieldMaxChance": null
-  },
-  {
-    "Name": "Snowflake Parsely",
-    "LifeSkill": "Botany",
-    "FocusCost": 20,
-    "Yield": 13,
-    "YieldMin": null,
-    "YieldMax": null,
-    "TimePerCraftSeconds": 5,
-    "IsMineable": true,
-    "Ingredients": {},
-    "YieldOutcomes": null,
-    "YieldMinChance": null,
-    "YieldMaxChance": null
-  },
-  {
-    "Name": "Basic: Healing Aromatic",
-    "LifeSkill": "Alchemy",
-    "FocusCost": 25,
-    "Yield": null,
-    "YieldMin": null,
-    "YieldMax": null,
-    "TimePerCraftSeconds": 5,
-    "IsMineable": false,
-    "Ingredients": {
-      "Snowflake Parsely": 5,
-      "Potion Catalyst": 1
-    },
-    "YieldOutcomes": {
-      "0": 0.5,
-      "1": 0.5
-    },
-    "YieldMinChance": null,
-    "YieldMaxChance": null
-  },
-  {
-    "Name": "Azte Ore",
-    "LifeSkill": "Mineralogy",
-    "FocusCost": 20,
-    "Yield": null,
-    "YieldMin": 10,
-    "YieldMax": 12,
-    "TimePerCraftSeconds": 5,
-    "IsMineable": true,
-    "Ingredients": {},
-    "YieldOutcomes": null,
-    "YieldMinChance": null,
-    "YieldMaxChance": null
-  },
-  {
-    "Name": "Radiant Stone - Novice",
-    "LifeSkill": "Smelting",
-    "FocusCost": 10,
-    "Yield": null,
-    "YieldMin": null,
-    "YieldMax": null,
-    "TimePerCraftSeconds": 5,
-    "IsMineable": false,
-    "Ingredients": {
-      "Azte Ore": 8,
-      "Burning Powder": 1
-    },
-    "YieldOutcomes": {
-      "1": 0.8,
-      "2": 0.2
-    },
-    "YieldMinChance": null,
-    "YieldMaxChance": null
-  },
-  {
-    "Name": "Raw Ore of Ruby",
-    "LifeSkill": "Mineralogy",
-    "FocusCost": 20,
-    "Yield": null,
-    "YieldMin": 9,
-    "YieldMax": 10,
-    "TimePerCraftSeconds": 5,
-    "IsMineable": true,
-    "Ingredients": {},
-    "YieldOutcomes": null,
-    "YieldMinChance": null,
-    "YieldMaxChance": null
-  },
-  {
-    "Name": "Rich Ore of Ruby",
-    "LifeSkill": "Mineralogy",
-    "FocusCost": 20,
-    "Yield": null,
-    "YieldMin": 7,
-    "YieldMax": 8,
-    "TimePerCraftSeconds": 5,
-    "IsMineable": true,
-    "Ingredients": {},
-    "YieldOutcomes": null,
-    "YieldMinChance": null,
-    "YieldMaxChance": null
-  },
-  {
-    "Name": "Ruby",
-    "LifeSkill": "Gemcrafting",
-    "FocusCost": 20,
-    "Yield": 1,
-    "YieldMin": null,
-    "YieldMax": null,
-    "TimePerCraftSeconds": 5,
-    "IsMineable": false,
-    "Ingredients": {
-      "Raw Ore of Ruby": 7
-    },
-    "YieldOutcomes": null,
-    "YieldMinChance": null,
-    "YieldMaxChance": null
-  },
-  {
-    "Name": "Resin",
-    "LifeSkill": "Artisanry",
-    "FocusCost": 0,
-    "Yield": null,
-    "YieldMin": 2,
-    "YieldMax": 3,
-    "TimePerCraftSeconds": 5,
-    "IsMineable": true,
-    "Ingredients": {},
-    "YieldOutcomes": null,
-    "YieldMinChance": null,
-    "YieldMaxChance": null
-  },
-  {
-    "Name": "Gem Wax",
-    "LifeSkill": "Artisanry",
-    "FocusCost": 20,
-    "Yield": 15,
-    "YieldMin": null,
-    "YieldMax": null,
-    "TimePerCraftSeconds": 5,
-    "IsMineable": false,
-    "Ingredients": {
-      "Resin": 2
-    },
-    "YieldOutcomes": null,
-    "YieldMinChance": null,
-    "YieldMaxChance": null
-  },
-  {
-    "Name": "Ruby - Power 3",
-    "LifeSkill": "Gemcrafting",
-    "FocusCost": 20,
-    "Yield": 1,
-    "YieldMin": null,
-    "YieldMax": null,
-    "TimePerCraftSeconds": 5,
-    "IsMineable": false,
-    "Ingredients": {
-      "Rich Ore of Ruby": 5,
-      "Gem Wax": 2,
-      "Ruby": 1
-    },
-    "YieldOutcomes": null,
-    "YieldMinChance": null,
-    "YieldMaxChance": null
-  }
-];
-
 // ----------------- Recipe Store -----------------
 const Store = (() => {
   const listeners = new Set();
@@ -580,10 +242,22 @@ function classifyLifeSkill(name, isMineable, ingredients) {
   function clear() { map = {}; onChange(); }
   function count() { return Object.keys(map).length; }
 
-  // Init with sample for convenience
-  load(SAMPLE);
+
 
   return { subscribe, load, exportJson, allNames, get, upsert, remove, clear, count, normalizeRecipe };
+})();
+
+// ---- Initial recipes load from recipes.json ----
+(async function initRecipesFromFile(){
+  try {
+    const res = await fetch('recipes.json', { cache: 'no-store' });
+    if (!res.ok) { console.warn('recipes.json not found; starting with empty store.'); return; }
+    const data = await res.json();
+    Store.load(data);
+    console.info(`Loaded ${Store.count()} recipes from recipes.json`);
+  } catch (err) {
+    console.warn('Failed to load recipes.json:', err);
+  }
 })();
 
 // ----------------- Tabs -----------------
@@ -1338,7 +1012,19 @@ if (skillFilter) {
     }
   });
 
-  btnLoadSample.addEventListener('click', () => { Store.load(SAMPLE); importStatus.textContent = 'Loaded sample'; importStatus.className = 'pill ok'; });
+btnLoadSample.addEventListener('click', async () => {
+  try {
+    const res = await fetch('recipes.json', { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    Store.load(data);
+    importStatus.textContent = 'Loaded recipes.json';
+    importStatus.className = 'pill ok';
+  } catch (e) {
+    importStatus.textContent = 'Could not load recipes.json';
+    importStatus.className = 'pill err';
+  }
+});
   btnExportJson.addEventListener('click', () => download('recipes.json', Store.exportJson(true)));
   btnCopyJson.addEventListener('click', async () => {
     await navigator.clipboard.writeText(Store.exportJson(true));

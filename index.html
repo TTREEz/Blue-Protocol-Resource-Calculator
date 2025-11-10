@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Blue Protocol — Recipes & Focus Calculator</title>
   <link rel="stylesheet" href="styles.css" />
+  <link rel="preload" href="recipes.json" as="fetch" crossorigin="anonymous" />
 </head>
 
 <body>
@@ -238,7 +239,7 @@
           <div class="section-title">
             <h2>Import / Export</h2>
             <div class="toolbar">
-              <button id="btnLoadSample" class="btn small">Load sample</button>
+              <button id="btnLoadSample" class="btn small">Load recipes.json</button>
               <button id="btnExportJson" class="btn small">Download JSON</button>
               <button id="btnCopyJson" class="btn small ghost">Copy JSON</button>
             </div>
