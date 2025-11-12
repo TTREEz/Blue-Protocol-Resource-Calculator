@@ -79,9 +79,9 @@
       "Burning Powder": 1
     },
     "YieldOutcomes": {
-      "1": 0.7000000000000001,
-      "2": 0.20000000000000004,
-      "3": 0.10000000000000002
+      "1": 0.7,
+      "2": 0.19999999999999998,
+      "3": 0.09999999999999999
     },
     "YieldMinChance": null,
     "YieldMaxChance": null
@@ -414,9 +414,9 @@
       "Burning Powder": 1
     },
     "YieldOutcomes": {
-      "1": 0.7000000000000001,
-      "2": 0.20000000000000004,
-      "3": 0.10000000000000002
+      "1": 0.7,
+      "2": 0.19999999999999998,
+      "3": 0.09999999999999999
     },
     "YieldMinChance": null,
     "YieldMaxChance": null
@@ -439,6 +439,196 @@
       "2": 0.35,
       "3": 0.05,
       "4": 0.05
+    },
+    "YieldMinChance": null,
+    "YieldMaxChance": null
+  },
+  {
+    "Name": "Luna Ore",
+    "LifeSkill": "Mineralogy",
+    "FocusCost": 20,
+    "Yield": null,
+    "YieldMin": 10,
+    "YieldMax": 12,
+    "TimePerCraftSeconds": 5,
+    "IsMineable": true,
+    "Ingredients": {},
+    "YieldOutcomes": null,
+    "YieldMinChance": null,
+    "YieldMaxChance": null
+  },
+  {
+    "Name": "Luna Rich Ore",
+    "LifeSkill": "Mineralogy",
+    "FocusCost": 20,
+    "Yield": null,
+    "YieldMin": 10,
+    "YieldMax": 12,
+    "TimePerCraftSeconds": 5,
+    "IsMineable": true,
+    "Ingredients": {},
+    "YieldOutcomes": null,
+    "YieldMinChance": null,
+    "YieldMaxChance": null
+  },
+  {
+    "Name": "Luna Pure Ore",
+    "LifeSkill": "Mineralogy",
+    "FocusCost": 20,
+    "Yield": null,
+    "YieldMin": 10,
+    "YieldMax": 12,
+    "TimePerCraftSeconds": 5,
+    "IsMineable": true,
+    "Ingredients": {},
+    "YieldOutcomes": null,
+    "YieldMinChance": null,
+    "YieldMaxChance": null
+  },
+  {
+    "Name": "Fine Forgestone - Novice",
+    "LifeSkill": "Smelting",
+    "FocusCost": 10,
+    "Yield": null,
+    "YieldMin": null,
+    "YieldMax": null,
+    "TimePerCraftSeconds": 5,
+    "IsMineable": false,
+    "Ingredients": {
+      "Luna Ore": 8,
+      "Burning Powder": 1
+    },
+    "YieldOutcomes": {
+      "1": 0.8,
+      "2": 0.2
+    },
+    "YieldMinChance": null,
+    "YieldMaxChance": null
+  },
+  {
+    "Name": "Fine Forgestone - Master",
+    "LifeSkill": "Smelting",
+    "FocusCost": 10,
+    "Yield": null,
+    "YieldMin": null,
+    "YieldMax": null,
+    "TimePerCraftSeconds": 5,
+    "IsMineable": false,
+    "Ingredients": {
+      "Luna Rich Ore": 8,
+      "Burning Powder": 1
+    },
+    "YieldOutcomes": {
+      "1": 0.7000000000000001,
+      "2": 0.20000000000000004,
+      "3": 0.10000000000000002
+    },
+    "YieldMinChance": null,
+    "YieldMaxChance": null
+  },
+  {
+    "Name": "Fine Forgestone - Pro",
+    "LifeSkill": "Smelting",
+    "FocusCost": 10,
+    "Yield": null,
+    "YieldMin": null,
+    "YieldMax": null,
+    "TimePerCraftSeconds": 5,
+    "IsMineable": false,
+    "Ingredients": {
+      "Luna Pure Ore": 8,
+      "Burning Powder": 1
+    },
+    "YieldOutcomes": {
+      "1": 0.55,
+      "2": 0.35,
+      "3": 0.05,
+      "4": 0.05
+    },
+    "YieldMinChance": null,
+    "YieldMaxChance": null
+  },
+  {
+    "Name": "Fast Burning Powder*3",
+    "LifeSkill": "Artisanry",
+    "FocusCost": 20,
+    "Yield": 3,
+    "YieldMin": null,
+    "YieldMax": null,
+    "TimePerCraftSeconds": 5,
+    "IsMineable": false,
+    "Ingredients": {
+      "Charcoal": 2
+    },
+    "YieldOutcomes": null,
+    "YieldMinChance": null,
+    "YieldMaxChance": null
+  },
+  {
+    "Name": "Buri Mech Shard - Master",
+    "LifeSkill": "Smelting",
+    "FocusCost": 10,
+    "Yield": null,
+    "YieldMin": null,
+    "YieldMax": null,
+    "TimePerCraftSeconds": 5,
+    "IsMineable": false,
+    "Ingredients": {
+      "Fast Burning Powder*3": 3,
+      "Stokes Rich Ore": 9
+    },
+    "YieldOutcomes": {
+      "1": 0.85,
+      "2": 0.15
+    },
+    "YieldMinChance": null,
+    "YieldMaxChance": null
+  },
+  {
+    "Name": "Stokes Rich Ore",
+    "LifeSkill": "Mineralogy",
+    "FocusCost": 20,
+    "Yield": null,
+    "YieldMin": 2,
+    "YieldMax": 3,
+    "TimePerCraftSeconds": 5,
+    "IsMineable": false,
+    "Ingredients": {},
+    "YieldOutcomes": null,
+    "YieldMinChance": null,
+    "YieldMaxChance": null
+  },
+  {
+    "Name": "Stokes Pure Ore",
+    "LifeSkill": "Mineralogy",
+    "FocusCost": 20,
+    "Yield": null,
+    "YieldMin": 2,
+    "YieldMax": 3,
+    "TimePerCraftSeconds": 5,
+    "IsMineable": false,
+    "Ingredients": {},
+    "YieldOutcomes": null,
+    "YieldMinChance": null,
+    "YieldMaxChance": null
+  },
+  {
+    "Name": "Buri Mech Shard - Pro",
+    "LifeSkill": "Smelting",
+    "FocusCost": 10,
+    "Yield": null,
+    "YieldMin": null,
+    "YieldMax": null,
+    "TimePerCraftSeconds": 5,
+    "IsMineable": false,
+    "Ingredients": {
+      "Fast Burning Powder*3": 3,
+      "Stokes Pure Ore": 9
+    },
+    "YieldOutcomes": {
+      "1": 0.75,
+      "2": 0.15,
+      "3": 0.1
     },
     "YieldMinChance": null,
     "YieldMaxChance": null
