@@ -79,9 +79,9 @@
       "Burning Powder": 1
     },
     "YieldOutcomes": {
-      "1": 0.7,
-      "2": 0.19999999999999998,
-      "3": 0.09999999999999999
+      "1": 0.7000000000000001,
+      "2": 0.2,
+      "3": 0.1
     },
     "YieldMinChance": null,
     "YieldMaxChance": null
@@ -218,7 +218,7 @@
   },
   {
     "Name": "Raw Ore of Ruby",
-    "LifeSkill": "Mineralogy",
+    "LifeSkill": "Gemology",
     "FocusCost": 20,
     "Yield": null,
     "YieldMin": 9,
@@ -232,7 +232,7 @@
   },
   {
     "Name": "Rich Ore of Ruby",
-    "LifeSkill": "Mineralogy",
+    "LifeSkill": "Gemology",
     "FocusCost": 20,
     "Yield": null,
     "YieldMin": 7,
@@ -414,9 +414,9 @@
       "Burning Powder": 1
     },
     "YieldOutcomes": {
-      "1": 0.7,
-      "2": 0.19999999999999998,
-      "3": 0.09999999999999999
+      "1": 0.7000000000000001,
+      "2": 0.2,
+      "3": 0.1
     },
     "YieldMinChance": null,
     "YieldMaxChance": null
@@ -519,9 +519,9 @@
       "Burning Powder": 1
     },
     "YieldOutcomes": {
-      "1": 0.7000000000000001,
-      "2": 0.20000000000000004,
-      "3": 0.10000000000000002
+      "1": 0.7,
+      "2": 0.19999999999999998,
+      "3": 0.09999999999999999
     },
     "YieldMinChance": null,
     "YieldMaxChance": null
@@ -592,7 +592,7 @@
     "YieldMin": 2,
     "YieldMax": 3,
     "TimePerCraftSeconds": 5,
-    "IsMineable": false,
+    "IsMineable": true,
     "Ingredients": {},
     "YieldOutcomes": null,
     "YieldMinChance": null,
@@ -606,7 +606,7 @@
     "YieldMin": 2,
     "YieldMax": 3,
     "TimePerCraftSeconds": 5,
-    "IsMineable": false,
+    "IsMineable": true,
     "Ingredients": {},
     "YieldOutcomes": null,
     "YieldMinChance": null,
@@ -630,6 +630,38 @@
       "2": 0.15,
       "3": 0.1
     },
+    "YieldMinChance": null,
+    "YieldMaxChance": null
+  },
+  {
+    "Name": "Ruby Cluster",
+    "LifeSkill": "Gemology",
+    "FocusCost": 20,
+    "Yield": null,
+    "YieldMin": 5,
+    "YieldMax": 6,
+    "TimePerCraftSeconds": 5,
+    "IsMineable": true,
+    "Ingredients": {},
+    "YieldOutcomes": null,
+    "YieldMinChance": null,
+    "YieldMaxChance": null
+  },
+  {
+    "Name": "Ruby - Power 5",
+    "LifeSkill": "Gemcrafting",
+    "FocusCost": 20,
+    "Yield": 1,
+    "YieldMin": null,
+    "YieldMax": null,
+    "TimePerCraftSeconds": 5,
+    "IsMineable": false,
+    "Ingredients": {
+      "Ruby Cluster": 3,
+      "Gem Wax": 6,
+      "Ruby": 2
+    },
+    "YieldOutcomes": null,
     "YieldMinChance": null,
     "YieldMaxChance": null
   }
